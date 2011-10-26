@@ -102,12 +102,13 @@ public class Compilador extends javax.swing.JFrame {
 
     private void btnCompileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCompileActionPerformed
         analisadorSintatico = new Sintatico(sourceFile);
-        String msg = analisadorSintatico.execute();
-        if(msg!=null) {
-            txtSaida.setText(msg);
-            return;
-        }
         
+        try{
+        analisadorSintatico.execute();
+        } catch(Exception erro)
+        {
+            txtSaida.setText(erro.getMessage());
+        }
     }//GEN-LAST:event_btnCompileActionPerformed
 
 

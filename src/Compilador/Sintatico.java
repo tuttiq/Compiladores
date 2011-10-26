@@ -17,7 +17,7 @@ public class Sintatico {
         
     }
 
-    public String execute() {
+    public void execute() throws Exception {
 
     /*início
     Léxico(token)
@@ -44,11 +44,8 @@ public class Sintatico {
     senão ERRO
     fim.
     */
-        //CHAMA ANÁLISE LÉXICA
-        String mensagem = lexico.fileToTokenList();
-        if(mensagem!=null)
-            return mensagem;
-        
+        String msg = "Analisador sintatico: ";
+          
         tk = lexico.token();
         if(tk.getSimbolo().equals("sPrograma"))
         {
@@ -59,32 +56,32 @@ public class Sintatico {
                 tk = lexico.token();
                 if(tk.getSimbolo().equals("sPontoVirgula"))
                 {
-                    //analisa_bloco()
+                    analisaBloco();
+                    
                     if(tk.getSimbolo().equals("sPonto"))
                     {
                         tk = lexico.token();
                         if(tk==null)
-                            return "Compilado com sucesso!";
+                           msg += "Compilado com sucesso!";
                         else
-                            mensagem = "codigo apos final do programa.";
+                            throw new Exception(msg + "codigo apos final do programa.");
                     }
                     else
-                        mensagem = "final do programa, '.' esperado.";
+                        throw new Exception(msg + "final do programa, '.' esperado.");
                 }
                 else
-                    mensagem = "';' esperado.";
+                    throw new Exception(msg + "';' esperado.");
             }
             else
-                mensagem = "nome do programa, identificador esperado.";
+                throw new Exception(msg + "nome do programa, identificador esperado.");
         }
         else
-            mensagem = "programa deve iniciar com a palavra 'programa'.";
+            throw new Exception(msg + "programa deve iniciar com a palavra 'programa'.");
 
 
-        return "Analisador sintatico: " + mensagem;
     }
     
-    public String analisaBloco()
+    public void analisaBloco() throws Exception
     {
         /*Algoritmo Analisa_Bloco <bloco>
             início
@@ -99,7 +96,7 @@ public class Sintatico {
         analisaSubRotinas();
         analisaComandos();
 
-        return null;
+        //return null;
     }
     
     public String analisaEtapaVariaveis() {
