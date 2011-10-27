@@ -1,6 +1,10 @@
 package Compilador;
 
 
+import Compilador.Structures.Token;
+import Compilador.Structures.TabelaDeSimbolos;
+import Compilador.Exceptions.AnaliseSintaticaException;
+import Compilador.Exceptions.CompiladoComSucesso;
 import java.io.File;
 
 public class Sintatico {
@@ -8,6 +12,7 @@ public class Sintatico {
     private TabelaDeSimbolos tabela = new TabelaDeSimbolos();
     private Lexico lexico;
     private Token tk;
+    private int n_line = 0;
    // private String mensagem = null;
 
 
@@ -47,6 +52,7 @@ public class Sintatico {
         String msg = "Analisador sintatico: ";
           
         tk = lexico.token();
+       // n_line = lexico.tokenXlinhas.get(tk);
         if(tk.getSimbolo().equals("sPrograma"))
         {
             tk = lexico.token();
@@ -62,21 +68,21 @@ public class Sintatico {
                     {
                         tk = lexico.token();
                         if(tk==null)
-                           msg += "Compilado com sucesso!";
+                           throw new CompiladoComSucesso();
                         else
-                            throw new Exception(msg + "codigo apos final do programa.");
+                            throw new AnaliseSintaticaException(lexico.getN_line(),"codigo apos final do programa.");
                     }
                     else
-                        throw new Exception(msg + "final do programa, '.' esperado.");
+                        throw new AnaliseSintaticaException(lexico.getN_line(),"final do programa, '.' esperado.");
                 }
                 else
-                    throw new Exception(msg + "';' esperado.");
+                    throw new AnaliseSintaticaException(lexico.getN_line(),"';' esperado.");
             }
             else
-                throw new Exception(msg + "nome do programa, identificador esperado.");
+                throw new AnaliseSintaticaException(lexico.getN_line(),"nome do programa, identificador esperado.");
         }
         else
-            throw new Exception(msg + "programa deve iniciar com a palavra 'programa'.");
+            throw new AnaliseSintaticaException(lexico.getN_line(),"programa deve iniciar com a palavra 'programa'.");
 
 
     }
