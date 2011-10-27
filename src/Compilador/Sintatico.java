@@ -1,6 +1,5 @@
 package Compilador;
 
-
 import Compilador.Structures.Token;
 import Compilador.Structures.TabelaDeSimbolos;
 import Compilador.Exceptions.AnaliseSintaticaException;
@@ -12,10 +11,6 @@ public class Sintatico {
     private TabelaDeSimbolos tabela = new TabelaDeSimbolos();
     private Lexico lexico;
     private Token tk;
-    private int n_line = 0;
-   // private String mensagem = null;
-
-
 
     public Sintatico(File source) {
         lexico = new Lexico(source);
@@ -49,22 +44,19 @@ public class Sintatico {
     senão ERRO
     fim.
     */
-        String msg = "Analisador sintatico: ";
-          
         tk = lexico.token();
-       // n_line = lexico.tokenXlinhas.get(tk);
-        if(tk.getSimbolo().equals("sPrograma"))
+        if(tk!=null && tk.getSimbolo().equals("sPrograma"))
         {
             tk = lexico.token();
-            if(tk.getSimbolo().equals("sIdentificador"))
+            if(tk!=null && tk.getSimbolo().equals("sIdentificador"))
             {
                 tabela.insere("nomedoprograma", tk.getLexema(), true, null);
                 tk = lexico.token();
-                if(tk.getSimbolo().equals("sPontoVirgula"))
+                if(tk!=null && tk.getSimbolo().equals("sPontoVirgula"))
                 {
                     analisaBloco();
                     
-                    if(tk.getSimbolo().equals("sPonto"))
+                    if(tk!=null && tk.getSimbolo().equals("sPonto"))
                     {
                         tk = lexico.token();
                         if(tk==null)
@@ -102,10 +94,9 @@ public class Sintatico {
         analisaSubRotinas();
         analisaComandos();
 
-        //return null;
     }
     
-    public String analisaEtapaVariaveis() {
+    public void analisaEtapaVariaveis() throws Exception{
         /*início
             se token.simbolo = svar
             então início
@@ -121,19 +112,37 @@ public class Sintatico {
                 senão ERRO
          fim*/
         
-        return null;
+        if(tk.getSimbolo().equals("sVar"))
+        {
+            tk = lexico.token();
+            if(tk.getSimbolo().equals("sIdentificador"))
+            {
+                while(tk.getSimbolo().equals("sIdentificador"))
+                {
+                    analisaVariaveis();
+                    if(tk.getSimbolo().equals("sPontoVirgula"))
+                        tk = lexico.token();
+                    else
+                        throw new AnaliseSintaticaException(lexico.getN_line(), "';' esperado.");
+                }
+            }
+            else
+                throw new AnaliseSintaticaException(lexico.getN_line(), "nome de variavel, identificador esperado.");
+        }
     }
     
-    public String analisaVariaveis() {
-        return null;
+    public void analisaVariaveis() throws Exception {
+       throw new AnaliseSintaticaException(lexico.getN_line(), "Ainda nao implementada AnalisaVariaveis.");
     }
 
-    private String analisaSubRotinas() {
-        throw new UnsupportedOperationException("Not yet implemented");
+    private void analisaSubRotinas() throws Exception {
+       throw new AnaliseSintaticaException(lexico.getN_line(), "Ainda nao implementada AnalisaSubRotinas");
+       
     }
 
-    private String analisaComandos() {
-        throw new UnsupportedOperationException("Not yet implemented");
+    private void analisaComandos() throws Exception {
+       throw new AnaliseSintaticaException(lexico.getN_line(), "Ainda nao implementada AnalisaComandos");
+        
     }
 
 }
