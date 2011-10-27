@@ -5,49 +5,31 @@ import Compilador.Exceptions.AnaliseLexicaException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.Hashtable;
 import javax.swing.JOptionPane;
 
 public class Lexico {
 
     private File sourceFile;
-    private ArrayList<Token> tokens;
-    private int n_token = -1; //contador para percorrer a lista de tokens
+    private int n_line = 0; //contador para guardar o numero da linha
     private BufferedReader in;
-    private int n_line = -1; //contador de linhas
-
-    public int getN_line() {
-        return n_line;
-    }
-    private int i; //posicao na linha
+    private char caracter;
+    
   
     public Lexico(File source) {
        sourceFile = source;
        try{
            in = new BufferedReader(new FileReader(sourceFile));
+           caracter = (char) in.read();
        } catch(Exception ex)
        {
            JOptionPane.showMessageDialog(null, "I/O: Erro ao ler o arquivo.", "Erro!", JOptionPane.ERROR_MESSAGE);
        }
+       
             
     }
 
-    public Token token() throws Exception{
-        n_token++;
-        
-        if(tokens!=null && n_token<tokens.size())
-            return tokens.get(n_token);
-        else
-        {   n_token = 0; 
-            fileToTokenList(); 
-           return tokens.get(n_token);
-                
-        }
-      //  return null;
-    }
-
-    public void fileToTokenList() throws Exception
+    
+    public Token token() throws Exception
     {
     /* Inicio
             Abre arquivo fonte
@@ -79,44 +61,38 @@ public class Lexico {
             Fecha arquivo fonte
             Fim. */
 
-       
-            char line[];
+        if(caracter=='\n')
+        {   n_line++;
+            caracter = (char) in.read();
+        }
+        if( (int)caracter != -1) { 
 
-            if(in.ready()) {
-               tokens = new ArrayList<Token>();
-              // tokenLines = new Hashtable<Token, Integer>();
-               n_line++;
-               line = in.readLine().toCharArray();
-           //    int i;
-               for(i=0;i<line.length;i++) {
-                    if(i<line.length && (line[i]=='{' || Character.isSpaceChar(line[i])))
+            while( (int)caracter!=-1 && (caracter=='{' || Character.isSpaceChar(caracter)) )
+                {
+                    if(caracter=='{')
                     {
-                        if(line[i]=='{')
-                        {
-                            while (i<line.length && line[i] != '}')
-                                i++;
-                            i++;
+                        while ( (int)caracter!=-1 && caracter!='}') 
+                        {   
+                            caracter = (char) in.read();
                         }
-                        while(i<line.length && Character.isSpaceChar(line[i]))
-                            i++;
-                   }
-               
-                   if(i<line.length)
-                   {
-                       Token tk = pegaToken(line,i);                  
-                       tokens.add(tk);
-                      // tokenXlinhas.put(tk, n_line);
-                   }
-               }    
-            }
-            in.close();
-
-
-        //return null; //sem mensagem de erro
+                        caracter = (char) in.read();
+                    }
+                    while( (int)caracter!=-1 && (Character.isSpaceChar(caracter) || caracter=='\n')) 
+                        caracter = (char) in.read();
+               }
+               if( (int)caracter != -1) 
+               {
+                   Token tk = pegaToken();
+                   return tk;
+               }
+        }    
+            
+           return null;
+           
 
     }
 
-    public Token pegaToken(char[] array,int i) throws Exception {
+    public Token pegaToken() throws Exception {
     /*Inicio
         Se caracter é digito
         Então Trata Digito
@@ -134,24 +110,24 @@ public class Lexico {
     Fim.*/
 
 
-        if(Character.isDigit(array[i]))
-            return trataDigito(array); //não tem msg de erro
-        if(Character.isLetter(array[i]))
-            return trataIdentPalavraReservada(array); //nao tem msg de erro
-        if(array[i]==':')
-            return trataAtribuicao(array);
-        if(array[i]=='+' || array[i]=='-' || array[i]=='*')
-            return trataOpAritmetico(array);   
-        if(array[i]=='<' || array[i]=='>' || array[i]=='=')
-            return trataOpRelacional(array);
-        if(array[i]==';' || array[i]==',' || array[i]=='(' || array[i]==')' || array[i]=='.')
-            return trataPontuacao(array);
+        if(Character.isDigit(caracter))
+            return trataDigito();
+        if(Character.isLetter(caracter))
+            return trataIdentPalavraReservada();
+        if(caracter==':')
+            return trataAtribuicao();
+        if(caracter=='+' || caracter=='-' || caracter=='*')
+            return trataOpAritmetico();   
+        if(caracter=='<' || caracter=='>' || caracter=='=')
+            return trataOpRelacional();
+        if(caracter==';' || caracter==',' || caracter=='(' || caracter==')' || caracter=='.')
+            return trataPontuacao();
         
-        throw new AnaliseLexicaException(n_line, "Caracter invalido '" + array[i] + "'.");
+        throw new AnaliseLexicaException(n_line, "Caracter invalido '" + caracter + "'.");
 
     }
 
-    public Token trataDigito(char[] array){
+    public Token trataDigito() throws Exception{
         /*Def num : Palavra
             Inicio
                 num+=caracter
@@ -168,18 +144,17 @@ public class Lexico {
 
         String num = "";
         
-        while(Character.isDigit(array[i]))
+        while(Character.isDigit(caracter))
         {
-            num+=array[i];
-            i++;
+            num+=caracter;
+            caracter = (char) in.read();
         }
+        
         return new Token(num, "sNumero");
-
-        //sem Throws pq nao tem mensagem de ERRO
 
     }
 
-    private Token trataIdentPalavraReservada(char[] array) {
+    private Token trataIdentPalavraReservada() throws Exception {
     /*Def id: Palavra
       Inicio
         id = caracter
@@ -216,65 +191,61 @@ public class Lexico {
 
         String id = "";
      
-        while(Character.isLetterOrDigit(array[i]) || array[i]=='_')
+        while(Character.isLetterOrDigit(caracter) || caracter=='_')
         {
-            id+=array[i];
-            i++;
+            id+=caracter;
+            caracter = (char) in.read();
         }
-
-        Token tk = new Token();
-        tk.setLexema(id);
+        
 
         if(id.equals("programa"))
-            tk.setSimbolo("sPrograma");
+            return new Token(id,"sPrograma");
         else if (id.equals("se"))
-            tk.setSimbolo("sSe");
+            return new Token(id,"sSe");
         else if (id.equals("entao"))
-            tk.setSimbolo("sEntao");
+            return new Token(id,"sEntao");
         else if (id.equals("senao"))
-            tk.setSimbolo("sSenao");
+            return new Token(id,"sSenao");
         else if (id.equals("enquanto"))
-            tk.setSimbolo("sEnquanto");
+            return new Token(id,"sEnquanto");
         else if (id.equals("faca"))
-            tk.setSimbolo("sFaca");
+            return new Token(id,"sFaca");
         else if (id.equals("inicio"))
-            tk.setSimbolo("sInicio");
+            return new Token(id,"sInicio");
         else if (id.equals("fim"))
-            tk.setSimbolo("sFim");
+            return new Token(id,"sFim");
         else if (id.equals("escreva"))
-            tk.setSimbolo("sEscreva");
+            return new Token(id,"sEscreva");
         else if (id.equals("leia"))
-            tk.setSimbolo("sLeia");
+            return new Token(id,"sLeia");
         else if (id.equals("var"))
-            tk.setSimbolo("sVar");
+            return new Token(id,"sVar");
         else if (id.equals("inteiro"))
-            tk.setSimbolo("sInteiro");
+            return new Token(id,"sInteiro");
         else if (id.equals("booleano"))
-            tk.setSimbolo("sBooleano");
+            return new Token(id,"sBooleano");
         else if (id.equals("verdadeiro"))
-            tk.setSimbolo("sVerdadeiro");
+            return new Token(id,"sVerdadeiro");
         else if (id.equals("falso"))
-            tk.setSimbolo("sFalso");
+            return new Token(id,"sFalso");
         else if (id.equals("procedimento"))
-            tk.setSimbolo("sProcedimento");
+            return new Token(id,"sProcedimento");
         else if (id.equals("funcao"))
-            tk.setSimbolo("sFuncao");
+            return new Token(id,"sFuncao");
         else if (id.equals("div"))
-            tk.setSimbolo("sDiv");
+            return new Token(id,"sDiv");
         else if (id.equals("e"))
-            tk.setSimbolo("sE");
+            return new Token(id,"sE");
         else if (id.equals("ou"))
-            tk.setSimbolo("sOu");
+            return new Token(id,"sOu");
         else if (id.equals("nao"))
-            tk.setSimbolo("sNao");
+            return new Token(id,"sNao");
         else
-            tk.setSimbolo("sIdentificador");
-        
-        return tk; // não tem mensagem de ERRO
+            return new Token(id,"sIdentificador");
         
     }
 
-    private Token trataAtribuicao(char[] array) {
+    private Token trataAtribuicao() throws Exception {
 
         //conferir no caderno
         //mas eh soh
@@ -283,103 +254,106 @@ public class Lexico {
         //senao, erro na atribuicao
 
         String atrib = "";
-        atrib+=array[i];
-        i++;
+        atrib+=caracter;
+        caracter = (char) in.read();
         
-        if(array[i]!='=')
-        { 
-            i--;
-           Token tk = new Token(atrib, "sDoisPontos");
-           return tk;
-        }
+        if(caracter!='=')
+           return new Token(atrib, "sDoisPontos");
         
-        atrib+=array[i];
-        Token tk = new Token();
-        tk.setLexema(atrib);
-        tk.setSimbolo("sAtribuicao");
+        atrib+=caracter;
+        caracter = (char) in.read();
+        return new Token(atrib,"sAtribuicao");
         
-        return tk; //sem mensagem de erro;
     }
 
-    private Token trataOpAritmetico(char[] array) {
+    private Token trataOpAritmetico() throws Exception {
         //if else vendo qual operador é
         //tk.lexema = "+" ou "-" ou "*"
         //tk.simbolo = "sMais" ou "sMenos" ou "sMult"
 
-        Token tk = null;
         String operador="";
-        operador+=array[i];
+        operador+=caracter;
+        caracter = (char) in.read();
+        
+        if(operador.equals("+"))
+            return new Token(operador, "sMais");
+        else if(operador.equals("-"))
+            return new Token(operador, "sMenos");
+        else
+            return new Token(operador, "sMult");
 
-        if(array[i]=='+')
-            tk = new Token(operador, "sMais");
-        else if(array[i]=='-')
-            tk = new Token(operador, "sMenos");
-        else if (array[i]=='*')
-            tk = new Token(operador, "sMult");
-
-        return tk; // não tem mensagem de ERRO
     }
 
-    private Token trataOpRelacional(char[] array) throws Exception{
+    private Token trataOpRelacional() throws Exception{
 
         //mesma coisa q o aritmetico
         String opRelacional="";
-        Token tk = null;
-        opRelacional += array[i];
-
-        if (array[i] == '!') {         // diferente 
-            i++;
-            if (array[i] == '=')
-                tk = new Token(opRelacional, "sDif");
-            else
-                throw new AnaliseLexicaException(n_line, "Caracter invalido '!'.");
-            
-        } else if (array[i] == '=')  //igual
-            tk = new Token(opRelacional, "sIgual");
+        opRelacional += caracter;            
+        caracter = (char) in.read();
         
-        else if (array[i] == '<') {        // <= ou <
-            i++;
-            if (array[i] == '=')
-                tk = new Token(opRelacional, "sMenorIgual");
-            else {
-                i--;
-                tk = new Token(opRelacional, "sMenor");
-            }
-        } else if (array[i] == '>') {    // >= ou >
-            i++;
-            if (array[i] == '=') 
-                
-                tk = new Token(opRelacional, "sMaiorIgual");
+        if (opRelacional.equals("!")) {         // diferente 
+
+            if (caracter == '=')
+            {
+                opRelacional+=caracter;
+                caracter = (char) in.read();
+                return new Token(opRelacional, "sDif");
+            }               
+            else
+                throw new AnaliseLexicaException(n_line, "caracter invalido '!'.");
             
-            else {
-                i--;
-                tk = new Token(opRelacional, "sMaior");
+        } else if (opRelacional.equals("="))  //igual
+            return new Token(opRelacional, "sIgual");
+        
+        else if (opRelacional.equals("<")) {        // <= ou <
+            
+            if (caracter == '=')
+            {   
+                opRelacional+=caracter;
+                caracter = (char) in.read();
+                return new Token(opRelacional, "sMenorIgual");
             }
+            else
+                return new Token(opRelacional, "sMenor");
+            
+        } else {    // >= ou >
+            
+            if (caracter == '=') 
+            {
+                opRelacional+=caracter;
+                caracter = (char) in.read();
+                return new Token(opRelacional, "sMaiorIgual");
+            }
+            
+            else 
+                return new Token(opRelacional, "sMaior");
         }
-
-        return tk;
-
-
+        
     }
 
-    private Token trataPontuacao(char[] array) {
+    private Token trataPontuacao() throws Exception {
 
         //mesma coisa que os operadores, soh que com os caracteres de pontuacao
         String pontuacao="";
-        pontuacao+=array[i];
-        Token tk = null;
-        if(array[i]==';')
-            tk = new Token(pontuacao, "sPontoVirgula");
-        else if(array[i]==',')
-            tk = new Token(pontuacao, "sVirgula");
-        else if (array[i]=='(')
-            tk = new Token(pontuacao, "sAbreParenteses");
-        else if(array[i]==')')
-            tk = new Token(pontuacao, "sFechaParenteses");
-        else if (array[i]=='.')
-            tk = new Token(pontuacao, "sPonto");
+        pontuacao+=caracter;
+        caracter = (char) in.read();
         
-        return tk;
+        if(pontuacao.equals(";"))
+            return new Token(pontuacao, "sPontoVirgula");
+        else if(pontuacao.equals(","))
+            return new Token(pontuacao, "sVirgula");
+        else if (pontuacao.equals("("))
+            return new Token(pontuacao, "sAbreParenteses");
+        else if(pontuacao.equals(")"))
+            return new Token(pontuacao, "sFechaParenteses");
+        else
+            return new Token(pontuacao, "sPonto");
+        
+    }
+    
+    
+    public int getN_line() {
+        return n_line;
     }
 
 }
