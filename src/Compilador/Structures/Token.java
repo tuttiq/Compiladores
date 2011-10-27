@@ -31,6 +31,11 @@ public class Token {
         this.simbolo = simbolo;
     }
 
+    @Override
+    public String toString() {
+        return "Token{" + "lexema=" + lexema + ", simbolo=" + simbolo + '}';
+    }
+
     
 
 }
