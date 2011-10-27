@@ -97,6 +97,10 @@ public class Compilador extends javax.swing.JFrame {
 
         if(chooser.showOpenDialog(null)==JFileChooser.APPROVE_OPTION)
             sourceFile = chooser.getSelectedFile();
+        
+        lblPath.setText(sourceFile.getPath());
+        lblPath.updateUI();
+     
     }//GEN-LAST:event_btnLoadActionPerformed
 
     private void btnCompileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCompileActionPerformed
@@ -110,7 +114,7 @@ public class Compilador extends javax.swing.JFrame {
         }
         catch(Exception erro)
         {
-            txtSaida.setText(erro.getMessage());
+            txtSaida.setText( erro.getMessage() );
         }
     }//GEN-LAST:event_btnCompileActionPerformed
 
