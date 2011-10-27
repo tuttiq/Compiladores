@@ -1,4 +1,4 @@
-package Compilador;
+package Compilador.Structures;
 
 public class Simbolo {
 

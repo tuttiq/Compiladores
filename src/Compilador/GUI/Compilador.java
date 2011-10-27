@@ -1,10 +1,9 @@
-package Compilador;
+package Compilador.GUI;
 
-import java.io.BufferedReader;
+import Compilador.Exceptions.CompiladoComSucesso;
+import Compilador.Sintatico;
 import java.io.File;
-import java.io.FileReader;
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 
 
 public class Compilador extends javax.swing.JFrame {
@@ -105,7 +104,11 @@ public class Compilador extends javax.swing.JFrame {
         
         try{
         analisadorSintatico.execute();
-        } catch(Exception erro)
+        } catch(CompiladoComSucesso msg) {
+        
+            txtSaida.setText(msg.getMessage());
+        }
+        catch(Exception erro)
         {
             txtSaida.setText(erro.getMessage());
         }
