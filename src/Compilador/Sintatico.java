@@ -10,10 +10,12 @@ public class Sintatico {
 
     private TabelaDeSimbolos tabela = new TabelaDeSimbolos();
     private Lexico lexico;
+    private Semantico semantico;
     private Token tk;
 
     public Sintatico(File source) {
         lexico = new Lexico(source);
+        semantico = new Semantico();
         
     }
 
@@ -132,7 +134,49 @@ public class Sintatico {
     }
     
     public void analisaVariaveis() throws Exception {
-       throw new AnaliseSintaticaException(lexico.getN_line(), "Ainda nao implementada AnalisaVariaveis.");
+    /*início
+        repita
+            se token.símbolo = sidentificador
+            então
+                início
+                Pesquisa_duplicvar_ tabela(token.lexema)
+                se não encontrou duplicidade
+                então
+                    início
+                    insere_tabela(token.lexema, “variável”)
+                    Léxico(token)
+                    se (token.símbolo = Svírgula) ou (token.símbolo = Sdoispontos)
+                    então
+                        início
+                        se token.símbolo = Svírgula
+                        então
+                            início
+                            Léxico(token)
+                            se token.simbolo = Sdoispontos
+                            então ERRO
+                            fim
+                        fim
+                    senão ERRO
+                    fim
+                senão ERRO
+                fim
+            senão ERRO
+        até que (token.símbolo = sdoispontos)
+        Léxico(token)
+        Analisa_Tipo
+      fim*/
+        
+        do
+        {
+            if(tk.getSimbolo().equals("sIdentificador"))
+                if(!semantico.isVariavelDuplicada(tk))
+                {
+                   //semantico.insereTabela()...
+                }
+        }
+        while(tk.getSimbolo().equals("sDoisPontos"));
+        
+        
     }
 
     private void analisaSubRotinas() throws Exception {
