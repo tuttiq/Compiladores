@@ -10,10 +10,12 @@ public class Sintatico {
 
     private TabelaDeSimbolos tabela = new TabelaDeSimbolos();
     private Lexico lexico;
+    private Semantico semantico;
     private Token tk;
 
     public Sintatico(File source) {
         lexico = new Lexico(source);
+        semantico = new Semantico(tabela);
         
     }
 
@@ -79,7 +81,7 @@ public class Sintatico {
 
     }
     
-    public void analisaBloco() throws Exception
+    private void analisaBloco() throws Exception
     {
         /*Algoritmo Analisa_Bloco <bloco>
             início
@@ -96,7 +98,7 @@ public class Sintatico {
 
     }
     
-    public void analisaEtapaVariaveis() throws Exception{
+    private void analisaEtapaVariaveis() throws Exception{
         /*início
             se token.simbolo = svar
             então início
@@ -131,8 +133,59 @@ public class Sintatico {
         }
     }
     
-    public void analisaVariaveis() throws Exception {
-       throw new AnaliseSintaticaException(lexico.getN_line(), "Ainda nao implementada AnalisaVariaveis.");
+    private void analisaVariaveis() throws Exception {
+    /*início
+        repita
+            se token.símbolo = sidentificador
+            então
+                início
+                Pesquisa_duplicvar_ tabela(token.lexema)
+                se não encontrou duplicidade
+                então
+                    início
+                    insere_tabela(token.lexema, “variável”)
+                    Léxico(token)
+                    se (token.símbolo = Svírgula) ou (token.símbolo = Sdoispontos)
+                    então
+                        início
+                        se token.símbolo = Svírgula
+                        então
+                            início
+                            Léxico(token)
+                            se token.simbolo = Sdoispontos
+                            então ERRO
+                            fim
+                        fim
+                    senão ERRO
+                    fim
+                senão ERRO
+                fim
+            senão ERRO
+        até que (token.símbolo = sdoispontos)
+        Léxico(token)
+        Analisa_Tipo
+      fim*/
+        
+        do
+        {
+            if(tk.getSimbolo().equals("sIdentificador"))
+                if(!semantico.isVariavelDuplicada(tk))
+                {
+                   tabela.insere("variavel", tk.getLexema(), false, null);
+                   tk = lexico.token();
+                   if(tk.getSimbolo().equals("sVirgula") || tk.getSimbolo().equals("sDoisPontos"))
+                   {
+                       if (tk.getSimbolo().equals("sVirgula"))
+                       {
+                           if(tk.getSimbolo().equals("sDoisPontos"))
+                               throw new AnaliseSintaticaException(lexico.getN_line(), "");
+                       }//TCHURURU TERMINAAAARRRR
+                   }
+                }
+        }
+        while(tk.getSimbolo().equals("sDoisPontos"));
+        
+        
     }
 
     private void analisaSubRotinas() throws Exception {
