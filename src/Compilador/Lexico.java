@@ -92,7 +92,7 @@ public class Lexico {
 
     }
 
-    public Token pegaToken() throws Exception {
+    private Token pegaToken() throws Exception {
     /*Inicio
         Se caracter é digito
         Então Trata Digito
@@ -127,7 +127,7 @@ public class Lexico {
 
     }
 
-    public Token trataDigito() throws Exception{
+    private Token trataDigito() throws Exception{
         /*Def num : Palavra
             Inicio
                 num+=caracter
