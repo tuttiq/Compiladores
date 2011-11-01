@@ -1,14 +1,20 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package Compilador;
 
-/**
- *
- * @author 08106239
- */
+import Compilador.Structures.TabelaDeSimbolos;
+import Compilador.Structures.Token;
+
 public class Semantico {
+    
+    private TabelaDeSimbolos tabela;
+    
+    public Semantico(TabelaDeSimbolos t)
+    {
+        tabela = t;
+    }
+    
+    public boolean isVariavelDuplicada(Token tk)
+    {
+        return false;
+    }
 
 }
