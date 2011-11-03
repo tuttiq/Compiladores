@@ -1,49 +1,47 @@
 package Compilador;
 
 import Compilador.Structures.Token;
-import Compilador.Structures.TabelaDeSimbolos;
 import Compilador.Exceptions.AnaliseSintaticaException;
 import Compilador.Exceptions.CompiladoComSucesso;
 import java.io.File;
 
 public class Sintatico {
 
-    private TabelaDeSimbolos tabela = new TabelaDeSimbolos();
     private Lexico lexico;
     private Semantico semantico;
     private Token tk;
 
     public Sintatico(File source) {
         lexico = new Lexico(source);
-        semantico = new Semantico(tabela);
+        semantico = new Semantico();
         
     }
 
     public void execute() throws Exception {
 
-    /*início
-    Léxico(token)
+    /*inicio
+    Lexico(token)
     se token.simbolo = sprograma
-    então início
-        Léxico(token)
+    entao inicio
+        Lexico(token)
         se token.simbolo = sidentificador
-        então início
-            insere_tabela(token.lexema,”nomedeprograma”,””,””)
-            Léxico(token)
+        entao inicio
+            insere_tabela(token.lexema,"nomedeprograma","","")
+            Lexico(token)
             se token.simbolo = spontovirgula
-            então início
+            entao inicio
                 analisa_bloco
                 se token.simbolo = sponto
-                então se acabou arquivo ou é comentário
-                      então sucesso
-                      senão ERRO
-                senão ERRO
+                entao se acabou arquivo ou e comentario
+                      entao sucesso
+                      senao ERRO
+                senao ERRO
                 fim
-            senão ERRO
+            senao ERRO
             fim
-        senão ERRO
+        senao ERRO
         fim
-    senão ERRO
+    senao ERRO
     fim.
     */
         tk = lexico.token();
@@ -52,7 +50,8 @@ public class Sintatico {
             tk = lexico.token();
             if(tk!=null && tk.getSimbolo().equals("sIdentificador"))
             {
-                tabela.insere("nomedoprograma", tk.getLexema(), true, null);
+                semantico.insereSimbolo("nomedoprograma", tk.getLexema(), true);
+                
                 tk = lexico.token();
                 if(tk!=null && tk.getSimbolo().equals("sPontoVirgula"))
                 {
@@ -67,16 +66,16 @@ public class Sintatico {
                             throw new AnaliseSintaticaException(lexico.getN_line(),"codigo apos final do programa.");
                     }
                     else
-                        throw new AnaliseSintaticaException(lexico.getN_line(),"final do programa, '.' esperado.");
+                        throw new AnaliseSintaticaException(lexico.getN_line(),"final do programa, token '.' esperado.");
                 }
                 else
-                    throw new AnaliseSintaticaException(lexico.getN_line(),"';' esperado.");
+                    throw new AnaliseSintaticaException(lexico.getN_line(),"token ';' esperado.");
             }
             else
-                throw new AnaliseSintaticaException(lexico.getN_line(),"nome do programa, identificador esperado.");
+                throw new AnaliseSintaticaException(lexico.getN_line(),"nome do programa, token identificador esperado.");
         }
         else
-            throw new AnaliseSintaticaException(lexico.getN_line(),"programa deve iniciar com a palavra 'programa'.");
+            throw new AnaliseSintaticaException(lexico.getN_line(),"programa deve iniciar com o token 'programa'.");
 
 
     }
@@ -84,9 +83,9 @@ public class Sintatico {
     private void analisaBloco() throws Exception
     {
         /*Algoritmo Analisa_Bloco <bloco>
-            início
-            Léxico(token)
-            Analisa_et_variáveis
+            inicio
+            Lexico(token)
+            Analisa_et_variaveis
             Analisa_subrotinas
             Analisa_comandos
         fim*/
@@ -99,19 +98,19 @@ public class Sintatico {
     }
     
     private void analisaEtapaVariaveis() throws Exception{
-        /*início
+        /*inicio
             se token.simbolo = svar
-            então início
-                Léxico(token)
-                se token.símbolo = sidentificador
-                então enquanto(token.símbolo = sidentificador)
-                      faça início
-                           Analisa_Variáveis
-                           se token.símbolo = spontvirg
-                           então Léxico (token)
-                           senão ERRO
+            entao inicio
+                Lexico(token)
+                se token.simbolo = sidentificador
+                entao enquanto(token.simbolo = sidentificador)
+                      faça inicio
+                           Analisa_Variaveis
+                           se token.simbolo = spontvirg
+                           entao Lexico (token)
+                           senao ERRO
                       fim
-                senão ERRO
+                senao ERRO
          fim*/
         
         if(tk.getSimbolo().equals("sVar"))
@@ -125,67 +124,87 @@ public class Sintatico {
                     if(tk.getSimbolo().equals("sPontoVirgula"))
                         tk = lexico.token();
                     else
-                        throw new AnaliseSintaticaException(lexico.getN_line(), "';' esperado.");
+                        throw new AnaliseSintaticaException(lexico.getN_line(), "token ';' esperado.");
                 }
             }
             else
-                throw new AnaliseSintaticaException(lexico.getN_line(), "nome de variavel, identificador esperado.");
+                throw new AnaliseSintaticaException(lexico.getN_line(), "nome de variavel, token identificador esperado.");
         }
     }
     
     private void analisaVariaveis() throws Exception {
-    /*início
+    /*inicio
         repita
-            se token.símbolo = sidentificador
-            então
-                início
+            se token.simbolo = sidentificador
+            entao
+                inicio
                 Pesquisa_duplicvar_ tabela(token.lexema)
-                se não encontrou duplicidade
-                então
-                    início
-                    insere_tabela(token.lexema, “variável”)
-                    Léxico(token)
-                    se (token.símbolo = Svírgula) ou (token.símbolo = Sdoispontos)
-                    então
-                        início
-                        se token.símbolo = Svírgula
-                        então
-                            início
-                            Léxico(token)
+                se nao encontrou duplicidade
+                entao
+                    inicio
+                    insere_tabela(token.lexema, "variavel")
+                    Lexico(token)
+                    se (token.simbolo = Svirgula) ou (token.simbolo = Sdoispontos)
+                    entao
+                        inicio
+                        se token.simbolo = Svirgula
+                        entao
+                            inicio
+                            Lexico(token)
                             se token.simbolo = Sdoispontos
-                            então ERRO
+                            entao ERRO
                             fim
                         fim
-                    senão ERRO
+                    senao ERRO
                     fim
-                senão ERRO
+                senao ERRO
                 fim
-            senão ERRO
-        até que (token.símbolo = sdoispontos)
-        Léxico(token)
+            senao ERRO
+        ate que (token.simbolo = sdoispontos)
+        Lexico(token)
         Analisa_Tipo
       fim*/
         
         do
         {
             if(tk.getSimbolo().equals("sIdentificador"))
-                if(!semantico.isVariavelDuplicada(tk))
+            {   if(!semantico.isVariavelDuplicada(tk))
                 {
-                   tabela.insere("variavel", tk.getLexema(), false, null);
+                   semantico.insereSimbolo("variavel", tk.getLexema(), false);
+                   
                    tk = lexico.token();
                    if(tk.getSimbolo().equals("sVirgula") || tk.getSimbolo().equals("sDoisPontos"))
                    {
                        if (tk.getSimbolo().equals("sVirgula"))
                        {
+                    	   tk = lexico.token();
                            if(tk.getSimbolo().equals("sDoisPontos"))
-                               throw new AnaliseSintaticaException(lexico.getN_line(), "");
-                       }//TCHURURU TERMINAAAARRRR
-                   }
-                }
+                               throw new AnaliseSintaticaException(lexico.getN_line(), "token invalido ':' apos ','.");
+                       }
+                       
+                   } else
+                	   throw new AnaliseSintaticaException(lexico.getN_line(), "token ',' ou ':' esperado.");
+                } else
+                	throw new AnaliseSintaticaException(lexico.getN_line(), "variavel '" + tk.getLexema() + "' declarada mais de uma vez neste escopo.");
+            } else
+            	throw new AnaliseSintaticaException(lexico.getN_line(), "nome de variavel, token identificador esperado."); 	
         }
-        while(tk.getSimbolo().equals("sDoisPontos"));
+        while(!tk.getSimbolo().equals("sDoisPontos"));
+        tk = lexico.token();
+        analisaTipo();
         
-        
+    }
+    
+    private void analisaTipo() throws Exception {
+    /*in�cio
+		se (token.s�mbolo != sinteiro e token.s�mbolo != sbooleano))
+		ent�o ERRO
+		sen�o coloca_tipo_tabela(token.lexema)
+		L�xico(token)
+	fim*/
+    	
+    	if(tk.getSimbolo().equals("sInteiro"))
+    	
     }
 
     private void analisaSubRotinas() throws Exception {
@@ -197,5 +216,14 @@ public class Sintatico {
        throw new AnaliseSintaticaException(lexico.getN_line(), "Ainda nao implementada AnalisaComandos");
         
     }
+    
+    //Dentro de AnalisaExpressao, para expressao, expressao simples, termo e fator
+    //ao pedir o prox token, joga numa lista da expressao (ter a expressao inteira ao final da analise)
+    // jogar positivo e negativo com algum diferencial indicando que eh unario e nao + e - comum
+    
+    //Sintatico.AnalisaExpressao retorna a expressao completa na lista
+    //Pos ordem recebe a expressao e retorna ela convertida
+    //Semantico.AnalisaExpressao recebe a expressao convertida e retorna o tipo final dela
+    //Sintatico.AnalisaX (resultados de expressoes) verifica o tipo retornado
 
 }
