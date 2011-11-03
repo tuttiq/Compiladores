@@ -3,6 +3,8 @@ package Compilador;
 import Compilador.Structures.Token;
 import Compilador.Exceptions.AnaliseSintaticaException;
 import Compilador.Exceptions.CompiladoComSucesso;
+import Compilador.Structures.Simbolos;
+import Compilador.Structures.Tipos;
 import java.io.File;
 
 public class Sintatico {
@@ -45,19 +47,19 @@ public class Sintatico {
     fim.
     */
         tk = lexico.token();
-        if(tk!=null && tk.getSimbolo().equals("sPrograma"))
+        if(tk!=null && tk.getSimbolo()==Simbolos.Programa)
         {
             tk = lexico.token();
-            if(tk!=null && tk.getSimbolo().equals("sIdentificador"))
+            if(tk!=null && tk.getSimbolo()==Simbolos.Identificador)
             {
-                semantico.insereSimbolo("nomedoprograma", tk.getLexema(), true);
+                semantico.insereSimbolo(Tipos.NomeDoPrograma, tk.getLexema(), true);
                 
                 tk = lexico.token();
-                if(tk!=null && tk.getSimbolo().equals("sPontoVirgula"))
+                if(tk!=null && tk.getSimbolo()==Simbolos.PontoVirgula)
                 {
                     analisaBloco();
                     
-                    if(tk!=null && tk.getSimbolo().equals("sPonto"))
+                    if(tk!=null && tk.getSimbolo()==Simbolos.Ponto)
                     {
                         tk = lexico.token();
                         if(tk==null)
@@ -113,15 +115,15 @@ public class Sintatico {
                 senao ERRO
          fim*/
         
-        if(tk.getSimbolo().equals("sVar"))
+        if(tk.getSimbolo()==Simbolos.Var)
         {
             tk = lexico.token();
-            if(tk.getSimbolo().equals("sIdentificador"))
+            if(tk.getSimbolo()==Simbolos.Identificador)
             {
-                while(tk.getSimbolo().equals("sIdentificador"))
+                while(tk.getSimbolo()==Simbolos.Identificador)
                 {
                     analisaVariaveis();
-                    if(tk.getSimbolo().equals("sPontoVirgula"))
+                    if(tk.getSimbolo()==Simbolos.PontoVirgula)
                         tk = lexico.token();
                     else
                         throw new AnaliseSintaticaException(lexico.getN_line(), "token ';' esperado.");
@@ -167,18 +169,18 @@ public class Sintatico {
         
         do
         {
-            if(tk.getSimbolo().equals("sIdentificador"))
+            if(tk.getSimbolo()==Simbolos.Identificador)
             {   if(!semantico.isVariavelDuplicada(tk))
                 {
-                   semantico.insereSimbolo("variavel", tk.getLexema(), false);
+                   semantico.insereSimbolo(Tipos.Variavel, tk.getLexema(), false);
                    
                    tk = lexico.token();
-                   if(tk.getSimbolo().equals("sVirgula") || tk.getSimbolo().equals("sDoisPontos"))
+                   if(tk.getSimbolo()==Simbolos.Virgula || tk.getSimbolo()==Simbolos.DoisPontos)
                    {
-                       if (tk.getSimbolo().equals("sVirgula"))
+                       if (tk.getSimbolo()==Simbolos.Virgula)
                        {
                     	   tk = lexico.token();
-                           if(tk.getSimbolo().equals("sDoisPontos"))
+                           if(tk.getSimbolo()==Simbolos.DoisPontos)
                                throw new AnaliseSintaticaException(lexico.getN_line(), "token invalido ':' apos ','.");
                        }
                        
@@ -189,21 +191,24 @@ public class Sintatico {
             } else
             	throw new AnaliseSintaticaException(lexico.getN_line(), "nome de variavel, token identificador esperado."); 	
         }
-        while(!tk.getSimbolo().equals("sDoisPontos"));
+        while(tk.getSimbolo()!=Simbolos.DoisPontos);
         tk = lexico.token();
         analisaTipo();
         
     }
     
     private void analisaTipo() throws Exception {
-    /*início
-		se (token.símbolo != sinteiro e token.símbolo != sbooleano))
-		então ERRO
-		senão coloca_tipo_tabela(token.lexema)
-		Léxico(token)
+    /*inicio
+		se (token.simbolo != sinteiro e token.simbolo != sbooleano))
+		entio ERRO
+		senio coloca_tipo_tabela(token.lexema)
+		Lixico(token)
 	fim*/
     	
-    	if(tk.getSimbolo().equals("sInteiro"))
+    	if(tk.getSimbolo()!=Simbolos.Inteiro && tk.getSimbolo()!= Simbolos.Booleano)
+            throw new AnaliseSintaticaException(lexico.getN_line(),"tipo de variavel invalido.");
+        
+        semantico.alteraSimbolo(tk.getLexema(), tk.getSimbolo());
     	
     }
 
