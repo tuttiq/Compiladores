@@ -10,24 +10,25 @@ public class TabelaDeSimbolos {
         tabela = new ArrayList<Simbolo>();
     }
 
-    public void insere(String tipo,String lexema,boolean escopo,String end_memoria) {
+    public void insere(int tipo,String lexema,boolean escopo,String end_memoria) {
         tabela.add(new Simbolo(tipo,lexema,escopo,end_memoria));
     }
 
-    public Simbolo busca(String lexema) {
+    public int busca(String lexema) {
        for(Simbolo s : tabela)
        {
            if(s.getLexema().equals(lexema))
-               return s;
+               return tabela.indexOf(s);
        }
-       return null;
+       return -1;
     }
 
-    public void alteraTipo(String tipo) {
-        for(Simbolo s : tabela)
-        {
-           if(s.getTipo().equals("variavel"))
-               s.setTipo(tipo);
+    public void alteraTipo(String lexema, int tipo) {
+        int i = busca(lexema);
+        
+        if(i!=-1)
+        {   Simbolo s = tabela.get(i);
+            s.setTipo(tipo);
         }
     }
 

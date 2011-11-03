@@ -12,8 +12,13 @@ public class Semantico {
         tabela = new TabelaDeSimbolos();
     }
     
-    public void insereSimbolo(String tipo, String lexema, boolean escopo) {
+    public void insereSimbolo(int tipo, String lexema, boolean escopo) {
     	tabela.insere(tipo, lexema, escopo, null);
+    }
+    
+    public void alteraSimbolo(String lexema, int tipo) {
+        tabela.alteraTipo(lexema, tipo);
+    
     }
     
     public boolean isVariavelDuplicada(Token tk)
