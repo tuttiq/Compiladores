@@ -1,6 +1,6 @@
 package Compilador;
 
-import Compilador.Structures.Simbolo;
+import Compilador.Structures.Simbolos;
 import Compilador.Structures.Token;
 import Compilador.Exceptions.AnaliseLexicaException;
 import java.io.BufferedReader;
@@ -151,7 +151,7 @@ public class Lexico {
             caracter = (char) in.read();
         }
         
-        return new Token(num, Simbolo.Numero);
+        return new Token(num, Simbolos.Numero);
 
     }
 
@@ -200,49 +200,49 @@ public class Lexico {
         
 
         if(id.equals("programa"))
-            return new Token(id,Simbolo.Programa);
+            return new Token(id,Simbolos.Programa);
         else if (id.equals("se"))
-            return new Token(id,Simbolo.Se);
+            return new Token(id,Simbolos.Se);
         else if (id.equals("entao"))
-            return new Token(id,Simbolo.Entao);
+            return new Token(id,Simbolos.Entao);
         else if (id.equals("senao"))
-            return new Token(id,Simbolo.Senao);
+            return new Token(id,Simbolos.Senao);
         else if (id.equals("enquanto"))
-            return new Token(id,Simbolo.Enquanto);
+            return new Token(id,Simbolos.Enquanto);
         else if (id.equals("faca"))
-            return new Token(id,Simbolo.Faca);
+            return new Token(id,Simbolos.Faca);
         else if (id.equals("inicio"))
-            return new Token(id,Simbolo.Inicio);
+            return new Token(id,Simbolos.Inicio);
         else if (id.equals("fim"))
-            return new Token(id,Simbolo.Fim);
+            return new Token(id,Simbolos.Fim);
         else if (id.equals("escreva"))
-            return new Token(id,Simbolo.Escreva);
+            return new Token(id,Simbolos.Escreva);
         else if (id.equals("leia"))
-            return new Token(id,Simbolo.Leia);
+            return new Token(id,Simbolos.Leia);
         else if (id.equals("var"))
-            return new Token(id,Simbolo.Var);
+            return new Token(id,Simbolos.Var);
         else if (id.equals("inteiro"))
-            return new Token(id,Simbolo.Inteiro);
+            return new Token(id,Simbolos.Inteiro);
         else if (id.equals("booleano"))
-            return new Token(id,Simbolo.Booleano);
+            return new Token(id,Simbolos.Booleano);
         else if (id.equals("verdadeiro"))
-            return new Token(id,Simbolo.Verdadeiro);
+            return new Token(id,Simbolos.Verdadeiro);
         else if (id.equals("falso"))
-            return new Token(id,Simbolo.Falso);
+            return new Token(id,Simbolos.Falso);
         else if (id.equals("procedimento"))
-            return new Token(id,Simbolo.Procedimento);
+            return new Token(id,Simbolos.Procedimento);
         else if (id.equals("funcao"))
-            return new Token(id,Simbolo.Funcao);
+            return new Token(id,Simbolos.Funcao);
         else if (id.equals("div"))
-            return new Token(id,Simbolo.Divisao);
+            return new Token(id,Simbolos.Divisao);
         else if (id.equals("e"))
-            return new Token(id,Simbolo.E);
+            return new Token(id,Simbolos.E);
         else if (id.equals("ou"))
-            return new Token(id,Simbolo.Ou);
+            return new Token(id,Simbolos.Ou);
         else if (id.equals("nao"))
-            return new Token(id,Simbolo.Nao);
+            return new Token(id,Simbolos.Nao);
         else
-            return new Token(id,Simbolo.Identificador);
+            return new Token(id,Simbolos.Identificador);
         
     }
 
@@ -259,11 +259,11 @@ public class Lexico {
         caracter = (char) in.read();
         
         if(caracter!='=')
-           return new Token(atrib, Simbolo.DoisPontos);
+           return new Token(atrib, Simbolos.DoisPontos);
         
         atrib+=caracter;
         caracter = (char) in.read();
-        return new Token(atrib,Simbolo.Atribuicao);
+        return new Token(atrib,Simbolos.Atribuicao);
         
     }
 
@@ -277,11 +277,11 @@ public class Lexico {
         caracter = (char) in.read();
         
         if(operador.equals("+"))
-            return new Token(operador, Simbolo.Mais);
+            return new Token(operador, Simbolos.Mais);
         else if(operador.equals("-"))
-            return new Token(operador, Simbolo.Menos);
+            return new Token(operador, Simbolos.Menos);
         else
-            return new Token(operador, Simbolo.Multiplicacao);
+            return new Token(operador, Simbolos.Multiplicacao);
 
     }
 
@@ -298,13 +298,13 @@ public class Lexico {
             {
                 opRelacional+=caracter;
                 caracter = (char) in.read();
-                return new Token(opRelacional, Simbolo.Diferente);
+                return new Token(opRelacional, Simbolos.Diferente);
             }               
             else
                 throw new AnaliseLexicaException(n_line, "caracter invalido '!'.");
             
         } else if (opRelacional.equals("="))  //igual
-            return new Token(opRelacional, Simbolo.Igual);
+            return new Token(opRelacional, Simbolos.Igual);
         
         else if (opRelacional.equals("<")) {        // <= ou <
             
@@ -312,10 +312,10 @@ public class Lexico {
             {   
                 opRelacional+=caracter;
                 caracter = (char) in.read();
-                return new Token(opRelacional, Simbolo.MenorIgual);
+                return new Token(opRelacional, Simbolos.MenorIgual);
             }
             else
-                return new Token(opRelacional,Simbolo.Menor);
+                return new Token(opRelacional,Simbolos.Menor);
             
         } else {    // >= ou >
             
@@ -323,11 +323,11 @@ public class Lexico {
             {
                 opRelacional+=caracter;
                 caracter = (char) in.read();
-                return new Token(opRelacional, Simbolo.MaiorIgual);
+                return new Token(opRelacional, Simbolos.MaiorIgual);
             }
             
             else 
-                return new Token(opRelacional, Simbolo.Maior);
+                return new Token(opRelacional, Simbolos.Maior);
         }
         
     }
@@ -340,15 +340,15 @@ public class Lexico {
         caracter = (char) in.read();
         
         if(pontuacao.equals(";"))
-            return new Token(pontuacao, Simbolo.PontoVirgula);
+            return new Token(pontuacao, Simbolos.PontoVirgula);
         else if(pontuacao.equals(","))
-            return new Token(pontuacao, Simbolo.Virgula);
+            return new Token(pontuacao, Simbolos.Virgula);
         else if (pontuacao.equals("("))
-            return new Token(pontuacao, Simbolo.AbreParenteses);
+            return new Token(pontuacao, Simbolos.AbreParenteses);
         else if(pontuacao.equals(")"))
-            return new Token(pontuacao, Simbolo.FechaParenteses);
+            return new Token(pontuacao, Simbolos.FechaParenteses);
         else
-            return new Token(pontuacao, Simbolo.Ponto);
+            return new Token(pontuacao, Simbolos.Ponto);
         
     }
     
