@@ -3,14 +3,14 @@ package Compilador.Structures;
 public class Token {
 
     private String lexema;
-    private String simbolo;
+    private int simbolo;
 
     public Token() {
     }
 
 
 
-    public Token(String lexema, String simbolo) {
+    public Token(String lexema, int simbolo) {
         this.lexema = lexema;
         this.simbolo = simbolo;
     }
@@ -23,11 +23,11 @@ public class Token {
         this.lexema = lexema;
     }
 
-    public String getSimbolo() {
+    public int getSimbolo() {
         return simbolo;
     }
 
-    public void setSimbolo(String simbolo) {
+    public void setSimbolo(int simbolo) {
         this.simbolo = simbolo;
     }
 
