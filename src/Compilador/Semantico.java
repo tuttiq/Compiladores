@@ -1,7 +1,7 @@
 package Compilador;
 
-import Compilador.Structures.TabelaDeSimbolos;
-import Compilador.Structures.Token;
+import Compilador.Models.TabelaDeSimbolos;
+import Compilador.Models.Token;
 
 public class Semantico {
     

@@ -1,7 +1,7 @@
 package Compilador;
 
-import Compilador.Structures.Simbolos;
-import Compilador.Structures.Token;
+import Compilador.Constants.Simbolos;
+import Compilador.Models.Token;
 import Compilador.Exceptions.AnaliseLexicaException;
 import java.io.BufferedReader;
 import java.io.File;

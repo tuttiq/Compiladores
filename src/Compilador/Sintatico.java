@@ -1,10 +1,10 @@
 package Compilador;
 
-import Compilador.Structures.Token;
+import Compilador.Models.Token;
 import Compilador.Exceptions.AnaliseSintaticaException;
 import Compilador.Exceptions.CompiladoComSucesso;
-import Compilador.Structures.Simbolos;
-import Compilador.Structures.Tipos;
+import Compilador.Constants.Simbolos;
+import Compilador.Constants.Tipos;
 import java.io.File;
 
 public class Sintatico {
@@ -202,26 +202,144 @@ public class Sintatico {
 		se (token.simbolo != sinteiro e token.simbolo != sbooleano))
 		entio ERRO
 		senio coloca_tipo_tabela(token.lexema)
-		Lixico(token)
+		Lexico(token)
 	fim*/
     	
     	if(tk.getSimbolo()!=Simbolos.Inteiro && tk.getSimbolo()!= Simbolos.Booleano)
             throw new AnaliseSintaticaException(lexico.getN_line(),"tipo de variavel invalido.");
         
         semantico.alteraSimbolo(tk.getLexema(), tk.getSimbolo());
+        tk = lexico.token();
     	
     }
 
-    private void analisaSubRotinas() throws Exception {
-       throw new AnaliseSintaticaException(lexico.getN_line(), "Ainda nao implementada AnalisaSubRotinas");
-       
-    }
-
     private void analisaComandos() throws Exception {
-       throw new AnaliseSintaticaException(lexico.getN_line(), "Ainda nao implementada AnalisaComandos");
+    /*inicio
+    se token.simbolo = sinicio
+    entao inicio
+        Lexico(token)
+        Analisa_comando_simples
+        enquanto (token.simbolo != sfim)
+        faça inicio
+            se token.simbolo = spontovirgula
+            entao inicio
+                Lexico(token)
+                se token.simbolo != sfim
+                entao Analisa_comando_simples
+                fim
+            senao ERRO
+            fim
+        Lexico(token)
+        fim
+    senao ERRO
+    fim
+    */
+    }
+    
+    private void analisaComandoSimples() throws Exception {
+  /*inicio
+        se token.simbolo = sidentificador
+        entao Analisa_atrib_chprocedimento
+        senao
+            se token.simbolo = sse
+            entao Analisa_se
+            senao
+                se token.simbolo = senquanto
+                entao Analisa_enquanto
+                senao
+                    se token.simbolo = sleia
+                    entao Analisa_leia
+                    senao
+                        se token.simbolo = sescreva
+                        entao Analisa_ escreva
+                        senao
+                            Analisa_comandos
+    fim
+    */
+    }
+    
+    private void analisaAtribChamadaProcedimento() throws Exception{
+    /*inicio
+        Lexico(token)
+        se token.simbolo = satribuiçao
+        entao Analisa_atribuicao
+        senao Chamada_procedimento
+    fim*/
+    }
+    
+    private void analisaLeia() throws Exception {
+    /*inicio
+        Lexico(token)
+        se token.simbolo = sabre_parenteses
+        entao inicio
+            Lexico(token)
+            se token.simbolo = sidentificador
+            entao se semantico.pesquisa_declvar_tabela(token.lexema)
+                  entao inicio
+                      Lexico(token)
+                      se token.simbolo = sfecha_parenteses
+                      entao Lexico(token)
+                      senao ERRO
+                    fim
+                  senao ERRO
+            senao ERRO
+          fim
+        senao ERRO
+     fim
+    */
+    }
+    
+    private void analisaEscreva() throws Exception {
+    /*inicio
+        Lexico(token)
+        se token.simbolo = sabre_parenteses
+        entao inicio
+            Lexico(token)
+            se token.simbolo = sidentificador
+            entao se semantico.pesquisa_ declvarfunc_tabela(token.lexema)
+                entao inicio
+                    Lexico(token)
+                    se token.simbolo = sfecha_parenteses
+                    entao Lexico(token)
+                    senao ERRO
+                    fim
+                senao ERRO
+            senao ERRO
+            fim
+        senao ERRO
+    fim
+    */
+    }
+    
+    private void analisaEnquanto() throws Exception {
+
+    }
+    
+    private void analisaSe() throws Exception {
         
     }
     
+    
+    
+    private void analisaSubRotinas() throws Exception {
+       
+    }
+
+    private void analisaDeclaracaoProcedimento() throws Exception {
+        
+    }
+    
+    private void analisaDeclaracaoFuncao() throws Exception {
+        
+    }
+    
+    private void analisaExpressao() throws Exception {
+        
+    }
+    
+    private void analisaExpressaoSimples() throws Exception {
+    
+    }
     //Dentro de AnalisaExpressao, para expressao, expressao simples, termo e fator
     //ao pedir o prox token, joga numa lista da expressao (ter a expressao inteira ao final da analise)
     // jogar positivo e negativo com algum diferencial indicando que eh unario e nao + e - comum
@@ -231,4 +349,11 @@ public class Sintatico {
     //Semantico.AnalisaExpressao recebe a expressao convertida e retorna o tipo final dela
     //Sintatico.AnalisaX (resultados de expressoes) verifica o tipo retornado
 
+    private void analisaTermo() throws Exception {
+        
+    }
+    
+    private void analisaFator() throws Exception {
+        
+    }
 }
