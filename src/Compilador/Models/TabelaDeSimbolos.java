@@ -1,4 +1,4 @@
-package Compilador.Structures;
+package Compilador.Models;
 
 import java.util.ArrayList;
 
