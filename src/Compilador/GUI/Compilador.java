@@ -1,6 +1,5 @@
 package Compilador.GUI;
 
-import Compilador.Exceptions.CompiladoComSucesso;
 import Compilador.Sintatico;
 import java.io.File;
 import javax.swing.JFileChooser;
@@ -107,10 +106,8 @@ public class Compilador extends javax.swing.JFrame {
         analisadorSintatico = new Sintatico(sourceFile);
         
         try{
-        analisadorSintatico.execute();
-        } catch(CompiladoComSucesso msg) {
-        
-            txtSaida.setText(msg.getMessage());
+            analisadorSintatico.execute();
+            txtSaida.setText("Compilado com sucesso!");
         }
         catch(Exception erro)
         {
