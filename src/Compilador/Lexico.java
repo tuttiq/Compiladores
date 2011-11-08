@@ -62,30 +62,30 @@ public class Lexico {
             Fecha arquivo fonte
             Fim. */
 
-        if(caracter=='\n')
+        while(caracter=='\n')
         {   n_line++;
             caracter = (char) in.read();
         }
         if( (int)caracter != -1) { 
 
             while( (int)caracter!=-1 && (caracter=='{' || Character.isSpaceChar(caracter)) )
+            {
+                if(caracter=='{')
                 {
-                    if(caracter=='{')
-                    {
-                        while ( (int)caracter!=-1 && caracter!='}') 
-                        {   
-                            caracter = (char) in.read();
-                        }
+                    while ( (int)caracter!=-1 && caracter!='}') 
+                    {   
                         caracter = (char) in.read();
                     }
-                    while( (int)caracter!=-1 && (Character.isSpaceChar(caracter) || caracter=='\n')) 
-                        caracter = (char) in.read();
-               }
-               if( (int)caracter != -1) 
-               {
-                   Token tk = pegaToken();
-                   return tk;
-               }
+                    caracter = (char) in.read();
+                }
+                while( (int)caracter!=-1 && (Character.isSpaceChar(caracter) || caracter=='\n')) 
+                    caracter = (char) in.read();
+            }
+           if( (int)caracter != -1) 
+           {
+               Token tk = pegaToken();
+               return tk;
+           }
         }    
             
            return null;
