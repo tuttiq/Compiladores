@@ -14,7 +14,7 @@ public class TabelaDeSimbolos {
         tabela.add(new Simbolo(tipo,lexema,escopo,end_memoria));
     }
 
-    public int busca(String lexema) {
+    private int buscaIndex(String lexema) {
        for(Simbolo s : tabela)
        {
            if(s.getLexema().equals(lexema))
@@ -22,9 +22,17 @@ public class TabelaDeSimbolos {
        }
        return -1;
     }
+    
+    public Simbolo busca(String lexema) {
+        Simbolo s = tabela.get(buscaIndex(lexema));
+        if(s!=null)
+            return s;
+        else
+            return null;
+    }
 
     public void alteraTipo(String lexema, int tipo) {
-        int i = busca(lexema);
+        int i = buscaIndex(lexema);
         
         if(i!=-1)
         {   Simbolo s = tabela.get(i);
