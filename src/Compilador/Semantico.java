@@ -1,7 +1,8 @@
 package Compilador;
 
+import Compilador.Exceptions.AnaliseSemanticaException;
+import Compilador.Models.Simbolo;
 import Compilador.Models.TabelaDeSimbolos;
-import Compilador.Models.Token;
 
 public class Semantico {
     
@@ -21,10 +22,27 @@ public class Semantico {
     
     }
     
-    public boolean isVariavelDuplicada(Token tk)
+    public Simbolo buscaSimbolo(String lexema)
+    {
+        return tabela.busca(lexema);
+    }
+    
+    
+    public void erro(int line, String msg) throws Exception
+    {
+        throw new AnaliseSemanticaException(line,msg);
+    }
+    
+    public boolean isIdentificadorDuplicado(String lexema)
     {
         return false;
     }
+    
+    public boolean isIdentificadorDeclarado(String lexema) {
+        return false;
+    }
+    
+    
     
     //Pela arvore de derivação (tabela de simbolo em pilha)
     //Usando expressão pós-ordem (mais simples)
