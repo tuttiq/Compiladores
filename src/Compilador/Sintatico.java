@@ -108,7 +108,7 @@ public class Sintatico {
                 Lexico(token)
                 se token.simbolo = sidentificador
                 entao enquanto(token.simbolo = sidentificador)
-                      faça inicio
+                      faÃ§a inicio
                            Analisa_Variaveis
                            se token.simbolo = spontvirg
                            entao Lexico (token)
@@ -128,7 +128,7 @@ public class Sintatico {
                     if(tk.getSimbolo()==Simbolos.PontoVirgula)
                         tk = lexico.token();
                     else
-                        throw new AnaliseSintaticaException(lexico.getN_line(), "token ';' esperado.");
+                        throw new AnaliseSintaticaException(lexico.getN_line(), "declaracao de variaveis, token ';' esperado.");
                 }
             }
             else
@@ -214,7 +214,6 @@ public class Sintatico {
         tk = lexico.token();
     	
     }
-
     private void analisaComandos() throws Exception {
     /*inicio
     se token.simbolo = sinicio
@@ -236,8 +235,26 @@ public class Sintatico {
     senao ERRO
     fim
     */
-        
-        
+
+        if(tk.getSimbolo() == Simbolos.Inicio){
+            tk = lexico.token();
+            analisaComandoSimples();
+            while(tk.getSimbolo() != Simbolos.Fim){
+                if(tk.getSimbolo() == Simbolos.PontoVirgula){
+                    tk = lexico.token();
+                    if(tk.getSimbolo() != Simbolos.Fim)
+                        analisaComandoSimples();
+                }
+                else
+                    throw new AnaliseSintaticaException(lexico.getN_line(),"token ';' esperado");
+            }//fim while
+
+            tk = lexico.token();
+        }
+        else
+            throw new AnaliseSintaticaException(lexico.getN_line(), "token 'inicio' esperado");
+
+
     }
     
     private void analisaComandoSimples() throws Exception {
@@ -260,6 +277,20 @@ public class Sintatico {
                             Analisa_comandos
     fim
     */
+        if(tk.getSimbolo() == Simbolos.Identificador)
+            analisaAtribChamadaProcedimento();
+        else{
+            if(tk.getSimbolo() == Simbolos.Se)
+                analisaSe();
+            else if(tk.getSimbolo() == Simbolos.Enquanto)
+                analisaEnquanto();
+            else if(tk.getSimbolo() == Simbolos.Leia)
+                analisaLeia();
+            else if(tk.getSimbolo() == Simbolos.Escreva)
+                analisaEscreva();
+            else
+                analisaComandos();
+        }
     }
     
     private void analisaAtribChamadaProcedimento() throws Exception{
@@ -269,6 +300,11 @@ public class Sintatico {
         entao Analisa_atribuicao
         senao Chamada_procedimento
     fim*/
+        tk = lexico.token();
+        if(tk.getSimbolo() == Simbolos.Atribuicao)
+            analisaAtribuicao();
+        else
+            analisaChamadaProcedimento();
     }
     
     private void analisaLeia() throws Exception {
@@ -291,6 +327,30 @@ public class Sintatico {
         senao ERRO
      fim
     */
+        tk = lexico.token();
+        if(tk.getSimbolo() == Simbolos.AbreParenteses)
+        {
+            tk = lexico.token();
+            if(tk.getSimbolo() == Simbolos.Identificador)
+            {
+                if( semantico.isIdentificadorDeclarado(tk.getLexema()) )
+                {
+                    tk = lexico.token();
+                    if(tk.getSimbolo() == Simbolos.FechaParenteses)
+                        tk = lexico.token();
+                    else
+                        throw new AnaliseSintaticaException(lexico.getN_line(),"comando leia, token ')' esperado ");
+                }
+                else
+                    semantico.erro(lexico.getN_line(),"identificador " + tk.getLexema() + " não declarado.");
+            }
+            else
+                throw new AnaliseSintaticaException(lexico.getN_line(),"comando leia, token identificador esperado.");
+
+        }
+        else
+            throw new AnaliseSintaticaException(lexico.getN_line(),"comando leia, token '(' esperado");
+
     }
     
     private void analisaEscreva() throws Exception {
@@ -313,18 +373,74 @@ public class Sintatico {
         senao ERRO
     fim
     */
+        tk = lexico.token();
+        if(tk.getSimbolo() == Simbolos.AbreParenteses){
+            tk = lexico.token();
+            if(tk.getSimbolo()==Simbolos.Identificador)
+            {
+	            if( semantico.isIdentificadorDeclarado(tk.getLexema()) )
+	            {
+	                tk = lexico.token();
+	                if(tk.getSimbolo() == Simbolos.FechaParenteses)
+	                    tk = lexico.token();
+	                else
+	                    throw new AnaliseSintaticaException(lexico.getN_line(),"comando escreva, token ')' esperado");
+	            }
+	            else
+	                semantico.erro(lexico.getN_line(),"identificador " + tk.getLexema() + " nao declarado.");
+            }
+            else
+            	throw new AnaliseSintaticaException(lexico.getN_line(), "comando escreva, token identificador esperado.");
+        }
+        else
+            throw new AnaliseSintaticaException(lexico.getN_line(),"comando escreva, token '(' esperado");
     }
     
+    
+    private void analisaSe() throws Exception {
+       /*   início
+                Léxico(token)
+                Analisa_expressão
+                se token.símbolo = sentão
+                então início
+                    Léxico(token)
+                    Analisa_comando_simples
+                    se token.símbolo = Ssenão
+                    então início
+                        Léxico(token)
+                        Analisa_comando_simples
+                    fim
+                fim
+                senão ERRO
+            fim*/
+        tk = lexico.token();
+        analisaExpressao();
+        if(tk.getSimbolo() == Simbolos.Entao)
+        {
+            tk =lexico.token();
+            analisaComandoSimples();
+            
+            if(tk.getSimbolo() == Simbolos.Senao)
+            {
+                tk = lexico.token();
+                analisaComandoSimples();
+            }
+        }
+        else
+            throw new AnaliseSintaticaException(lexico.getN_line(),"comando se, 'entao' esperado");
+    }
+
+    
     private void analisaEnquanto() throws Exception {
-    /*início
-        Léxico(token)
-        Analisa_expressão
-        se token.simbolo = sfaça
-        então início
-            Léxico(token)
+    /*inÃ­cio
+        LÃ©xico(token)
+        Analisa_expressÃ£o
+        se token.simbolo = sfaÃ§a
+        entÃ£o inÃ­cio
+            LÃ©xico(token)
             Analisa_comando_simples
         fim
-        senão ERRO
+        senÃ£o ERRO
     fim*/
         
         tk = lexico.token();
@@ -338,20 +454,17 @@ public class Sintatico {
             throw new AnaliseSintaticaException(lexico.getN_line(), "comando enquanto, 'faca' esperado.");
     }
     
-    private void analisaSe() throws Exception {
-        
-    }
     
     private void analisaSubRotinas() throws Exception {
-    /*início
-        enquanto (token.simbolo = sprocedimento) ou (token.simbolo = sfunção)
-        faça início
+    /*inÃ­cio
+        enquanto (token.simbolo = sprocedimento) ou (token.simbolo = sfunÃ§Ã£o)
+        faÃ§a inÃ­cio
             se (token.simbolo = sprocedimento)
-            então analisa_declaração_procedimento
-            senão analisa_ declaração_função
-            se token.símbolo = sponto-vírgula
-            então Léxico(token)
-            senão ERRO
+            entÃ£o analisa_declaraÃ§Ã£o_procedimento
+            senÃ£o analisa_ declaraÃ§Ã£o_funÃ§Ã£o
+            se token.sÃ­mbolo = sponto-vÃ­rgula
+            entÃ£o LÃ©xico(token)
+            senÃ£o ERRO
         fim
     fim*/
         
@@ -371,24 +484,24 @@ public class Sintatico {
     }
 
     private void analisaDeclaracaoProcedimento() throws Exception {
-    /*início
-        Léxico(token)
-        nível := “L” (marca ou novo galho)
-        se token.símbolo = sidentificador
-        então início
+    /*inÃ­cio
+        LÃ©xico(token)
+        nÃ­vel := â€œLâ€� (marca ou novo galho)
+        se token.sÃ­mbolo = sidentificador
+        entÃ£o inÃ­cio
             pesquisa_declproc_tabela(token.lexema)
-            se não encontrou
-            então início
-                Insere_tabela(token.lexema,”procedimento”,nível, rótulo)
-                Léxico(token)
-                se token.simbolo = sponto_vírgula
-                então Analisa_bloco
-                senão ERRO
+            se nÃ£o encontrou
+            entÃ£o inÃ­cio
+                Insere_tabela(token.lexema,â€�procedimentoâ€�,nÃ­vel, rÃ³tulo)
+                LÃ©xico(token)
+                se token.simbolo = sponto_vÃ­rgula
+                entÃ£o Analisa_bloco
+                senÃ£o ERRO
             fim
-            senão ERRO
+            senÃ£o ERRO
         fim
-        senão ERRO
-        DESEMPILHA OU VOLTA NÍVEL
+        senÃ£o ERRO
+        DESEMPILHA OU VOLTA NÃ�VEL
     fim*/
         
         tk = lexico.token();
@@ -412,36 +525,36 @@ public class Sintatico {
     }
     
     private void analisaDeclaracaoFuncao() throws Exception {
-    /*início
-        Léxico(token)
-        nível := “L” (marca ou novo galho)
-        se token.símbolo = sidentificador
-        então início
+    /*inÃ­cio
+        LÃ©xico(token)
+        nÃ­vel := â€œLâ€� (marca ou novo galho)
+        se token.sÃ­mbolo = sidentificador
+        entÃ£o inÃ­cio
             pesquisa_declfunc_tabela(token.lexema)
-            se não encontrou
-            então início
-                Insere_tabela(token.lexema,””,nível,rótulo)
-                Léxico(token)
-                se token.símbolo = sdoispontos
-                então início
-                    Léxico(token)
-                    se (token.símbolo = Sinteiro) ou (token.símbolo = Sbooleano)
-                    então início
-                        se (token.símbolo = Sinteger)
-                        então TABSIMB[pc].tipo:=“função inteiro”
-                        senão TABSIMB[pc].tipo:=“função boolean”
-                        Léxico(token)
-                        se token.símbolo = sponto_vírgula
-                        então Analisa_bloco
+            se nÃ£o encontrou
+            entÃ£o inÃ­cio
+                Insere_tabela(token.lexema,â€�â€�,nÃ­vel,rÃ³tulo)
+                LÃ©xico(token)
+                se token.sÃ­mbolo = sdoispontos
+                entÃ£o inÃ­cio
+                    LÃ©xico(token)
+                    se (token.sÃ­mbolo = Sinteiro) ou (token.sÃ­mbolo = Sbooleano)
+                    entÃ£o inÃ­cio
+                        se (token.sÃ­mbolo = Sinteger)
+                        entÃ£o TABSIMB[pc].tipo:=â€œfunÃ§Ã£o inteiroâ€�
+                        senÃ£o TABSIMB[pc].tipo:=â€œfunÃ§Ã£o booleanâ€�
+                        LÃ©xico(token)
+                        se token.sÃ­mbolo = sponto_vÃ­rgula
+                        entÃ£o Analisa_bloco
                     fim
-                    senão ERRO
+                    senÃ£o ERRO
                 fim
-                senão ERRO
+                senÃ£o ERRO
             fim
-            senão ERRO
+            senÃ£o ERRO
         fim
-        senão ERRO
-        DESEMPILHA OU VOLTA NÍVEL
+        senÃ£o ERRO
+        DESEMPILHA OU VOLTA NÃ�VEL
     fim*/
         
         tk = lexico.token();
@@ -491,12 +604,12 @@ public class Sintatico {
         
     }
     private void analisaExpressao() throws Exception {
-    /*início
-        Analisa_expressão_simples
+    /*inÃ­cio
+        Analisa_expressÃ£o_simples
         se (token.simbolo = (smaior ou smaiorig ou sig ou smenor ou smenorig ou sdif))
-        então inicio
-            Léxico(token)
-            Analisa_expressão_simples
+        entÃ£o inicio
+            LÃ©xico(token)
+            Analisa_expressÃ£o_simples
         fim
     fim*/
         
@@ -510,14 +623,14 @@ public class Sintatico {
     }
     
     private void analisaExpressaoSimples() throws Exception {
-    /*início
+    /*inÃ­cio
         se (token.simbolo = smais) ou (token.simbolo = smenos)
-        então
-            Léxico(token)
+        entÃ£o
+            LÃ©xico(token)
         Analisa_termo
         enquanto ((token.simbolo = smais) ou (token.simbolo = smenos) ou (token.simbolo = sou))
-        faça inicio
-            Léxico(token)
+        faÃ§a inicio
+            LÃ©xico(token)
             Analisa_termo
         fim
     fim*/
@@ -542,11 +655,11 @@ public class Sintatico {
     //Sintatico.AnalisaX (resultados de expressoes) verifica o tipo retornado
 
     private void analisaTermo() throws Exception {
-    /*início
+    /*inÃ­cio
         Analisa_fator
         enquanto ((token.simbolo = smult) ou (token.simbolo = sdiv) ou (token.simbolo = se))
-        então início
-            Léxico(token)
+        entÃ£o inÃ­cio
+            LÃ©xico(token)
             Analisa_fator
         fim
     fim*/
@@ -560,33 +673,33 @@ public class Sintatico {
     }
     
     private void analisaFator() throws Exception {
-    /*Início
-        Se token.simbolo = sidentificador (* Variável ou Função*)
-        Então inicio
-            Se pesquisa_tabela(token.lexema,nível,ind)
-            Então Se (TabSimb[ind].tipo = “função inteiro”) ou (TabSimb[ind].tipo = “função booleano”)
-                  Então Analisa_chamada_função
-                  Senão Léxico(token)
-            Senão ERRO
+    /*InÃ­cio
+        Se token.simbolo = sidentificador (* VariÃ¡vel ou FunÃ§Ã£o*)
+        EntÃ£o inicio
+            Se pesquisa_tabela(token.lexema,nÃ­vel,ind)
+            EntÃ£o Se (TabSimb[ind].tipo = â€œfunÃ§Ã£o inteiroâ€�) ou (TabSimb[ind].tipo = â€œfunÃ§Ã£o booleanoâ€�)
+                  EntÃ£o Analisa_chamada_funÃ§Ã£o
+                  SenÃ£o LÃ©xico(token)
+            SenÃ£o ERRO
             Fim
-        Senão Se (token.simbolo = snumero) (*Número*)
-              Então Léxico(token)
-              Senão Se token.símbolo = snao (*NAO*)
-                    Então início
-                        Léxico(token)
+        SenÃ£o Se (token.simbolo = snumero) (*NÃºmero*)
+              EntÃ£o LÃ©xico(token)
+              SenÃ£o Se token.sÃ­mbolo = snao (*NAO*)
+                    EntÃ£o inÃ­cio
+                        LÃ©xico(token)
                         Analisa_fator
                         Fim
-                    Senão Se token.simbolo = sabre_parenteses (* expressão entre parenteses *)
-                          Então início
-                              Léxico(token)
-                              Analisa_expressão(token)
+                    SenÃ£o Se token.simbolo = sabre_parenteses (* expressÃ£o entre parenteses *)
+                          EntÃ£o inÃ­cio
+                              LÃ©xico(token)
+                              Analisa_expressÃ£o(token)
                               Se token.simbolo = sfecha_parenteses
-                              Então Léxico(token)
-                              Senão ERRO
+                              EntÃ£o LÃ©xico(token)
+                              SenÃ£o ERRO
                               Fim
-                          Senão Se (token.lexema = verdadeiro) ou (token.lexema = falso)
-                                Então Léxico(token)
-                                Senão ERRO
+                          SenÃ£o Se (token.lexema = verdadeiro) ou (token.lexema = falso)
+                                EntÃ£o LÃ©xico(token)
+                                SenÃ£o ERRO
       Fim*/
        
         
