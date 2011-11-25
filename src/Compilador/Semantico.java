@@ -39,7 +39,7 @@ public class Semantico {
     }
     
     public boolean isIdentificadorDeclarado(String lexema) {
-        return false;
+        return true;
     }
     
     
