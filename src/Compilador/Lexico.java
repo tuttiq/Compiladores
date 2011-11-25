@@ -66,22 +66,22 @@ public class Lexico {
         {   n_line++;
             caracter = (char) in.read();
         }
-        if( (int)caracter != -1) { 
+        if( (int)caracter != -1 && caracter!='\uffff') { 
 
             while( (int)caracter!=-1 && (caracter=='{' || Character.isSpaceChar(caracter)) )
             {
                 if(caracter=='{')
                 {
-                    while ( (int)caracter!=-1 && caracter!='}') 
+                    while ( (int)caracter!=-1 && caracter!='\uffff' && caracter!='}') 
                     {   
                         caracter = (char) in.read();
                     }
                     caracter = (char) in.read();
                 }
-                while( (int)caracter!=-1 && (Character.isSpaceChar(caracter) || caracter=='\n')) 
+                while( (int)caracter!=-1 && caracter!='\uffff' && (Character.isSpaceChar(caracter) || caracter=='\n')) 
                     caracter = (char) in.read();
             }
-           if( (int)caracter != -1) 
+           if( (int)caracter != -1 && caracter!='\uffff') 
            {
                Token tk = pegaToken();
                return tk;
