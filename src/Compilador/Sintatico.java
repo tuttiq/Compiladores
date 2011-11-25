@@ -84,8 +84,7 @@ public class Sintatico {
 
     }
     
-    private void analisaBloco() throws Exception
-    {
+    private void analisaBloco() throws Exception {
         /*Algoritmo Analisa_Bloco <bloco>
             inicio
             Lexico(token)
@@ -214,6 +213,7 @@ public class Sintatico {
         tk = lexico.token();
     	
     }
+   
     private void analisaComandos() throws Exception {
     /*inicio
     se token.simbolo = sinicio
@@ -396,7 +396,6 @@ public class Sintatico {
             throw new AnaliseSintaticaException(lexico.getN_line(),"comando escreva, token '(' esperado");
     }
     
-    
     private void analisaSe() throws Exception {
        /*   início
                 Léxico(token)
@@ -415,6 +414,7 @@ public class Sintatico {
             fim*/
         tk = lexico.token();
         analisaExpressao();
+        
         if(tk.getSimbolo() == Simbolos.Entao)
         {
             tk =lexico.token();
@@ -430,7 +430,6 @@ public class Sintatico {
             throw new AnaliseSintaticaException(lexico.getN_line(),"comando se, 'entao' esperado");
     }
 
-    
     private void analisaEnquanto() throws Exception {
     /*inÃ­cio
         LÃ©xico(token)
@@ -445,6 +444,7 @@ public class Sintatico {
         
         tk = lexico.token();
         analisaExpressao();
+        
         if(tk.getSimbolo()==Simbolos.Faca)
         {
             tk = lexico.token();
@@ -453,7 +453,6 @@ public class Sintatico {
         else
             throw new AnaliseSintaticaException(lexico.getN_line(), "comando enquanto, 'faca' esperado.");
     }
-    
     
     private void analisaSubRotinas() throws Exception {
     /*inÃ­cio
@@ -593,7 +592,8 @@ public class Sintatico {
     }
     
     private void analisaAtribuicao() throws Exception {
-        
+        tk = lexico.token();
+        analisaExpressao();
     }
     
     private void analisaChamadaFuncao() throws Exception {
@@ -603,6 +603,7 @@ public class Sintatico {
     private void analisaChamadaProcedimento() throws Exception {
         
     }
+    
     private void analisaExpressao() throws Exception {
     /*inÃ­cio
         Analisa_expressÃ£o_simples
@@ -612,11 +613,13 @@ public class Sintatico {
             Analisa_expressÃ£o_simples
         fim
     fim*/
+        expressao = new ArrayList<Token>();
         
         analisaExpressaoSimples();
         if(tk.getSimbolo()==Simbolos.Maior || tk.getSimbolo()==Simbolos.MaiorIgual || tk.getSimbolo()==Simbolos.Igual
                 || tk.getSimbolo()==Simbolos.Menor || tk.getSimbolo()==Simbolos.MenorIgual || tk.getSimbolo()==Simbolos.Diferente)
         {
+            expressao.add(tk);
             tk = lexico.token();
             analisaExpressaoSimples();
         }
@@ -635,11 +638,16 @@ public class Sintatico {
         fim
     fim*/
         
+        
         if(tk.getSimbolo()==Simbolos.Mais || tk.getSimbolo()==Simbolos.Menos)
+        {
+            expressao.add(tk);
             tk = lexico.token();
+        }
         analisaTermo();
         while(tk.getSimbolo()==Simbolos.Mais || tk.getSimbolo()==Simbolos.Menos || tk.getSimbolo()==Simbolos.Ou)
         {
+            expressao.add(tk);
             tk = lexico.token();
             analisaTermo();
         }
@@ -667,6 +675,7 @@ public class Sintatico {
         analisaFator();
         while(tk.getSimbolo()==Simbolos.Multiplicacao || tk.getSimbolo()==Simbolos.Divisao || tk.getSimbolo()==Simbolos.Se)
         {
+            expressao.add(tk);
             tk = lexico.token();
             analisaFator();
         }
@@ -701,7 +710,8 @@ public class Sintatico {
                                 EntÃ£o LÃ©xico(token)
                                 SenÃ£o ERRO
       Fim*/
-       
+        
+        expressao.add(tk);
         
         if(tk.getSimbolo()==Simbolos.Identificador)
         {
@@ -710,7 +720,8 @@ public class Sintatico {
             {   if(s.getTipo()==Tipos.FuncaoInteiro || s.getTipo()==Tipos.FuncaoBooleano)
                     analisaChamadaFuncao();
                 else
-                    tk = lexico.token(); 
+                    tk = lexico.token();
+                
             }
             else
                 semantico.erro(lexico.getN_line(),"funcao/variavel nao declarada.");
@@ -738,4 +749,5 @@ public class Sintatico {
             throw new AnaliseSintaticaException(lexico.getN_line(),"fator invalido na expressao.");
         
     }
+
 }
