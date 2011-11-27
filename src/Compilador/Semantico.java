@@ -3,6 +3,8 @@ package Compilador;
 import Compilador.Exceptions.AnaliseSemanticaException;
 import Compilador.Models.Simbolo;
 import Compilador.Models.TabelaDeSimbolos;
+import Compilador.Models.Token;
+import java.util.ArrayList;
 
 public class Semantico {
     
@@ -41,7 +43,18 @@ public class Semantico {
     public boolean isIdentificadorDeclarado(String lexema) {
         return true;
     }
-    
+    public void analisaExpressao(ArrayList<Token> expressao, int line) throws Exception
+	{
+		ArrayList<Token> novaExpressao = posOrdem(expressao);
+		//tchururu analise complexa com regras chatas
+		erro(line, "expressao invalida");
+	}
+	
+	private ArrayList<Token> posOrdem(ArrayList<Token> expressao)
+	{
+		//algoritmo de pos-ordem
+		return null;
+	}
     
     
     //Pela arvore de derivação (tabela de simbolo em pilha)
