@@ -3,6 +3,7 @@ package Compilador;
 import Compilador.Models.Simbolo;
 import Compilador.Models.Token;
 import Compilador.Exceptions.AnaliseSintaticaException;
+import Compilador.Constants.Comandos;
 import Compilador.Constants.Simbolos;
 import Compilador.Constants.Tipos;
 import java.io.File;
@@ -12,12 +13,16 @@ public class Sintatico {
 
     private Lexico lexico;
     private Semantico semantico;
+    private GeradorDeCodigo codigo;
     private Token tk;
     private ArrayList<Token> expressao;
+    private Integer proxEndereco = 0;
+    private Integer proxRotulo = 1;
 
-    public Sintatico(File source) {
+    public Sintatico(File source)  throws Exception{
         lexico = new Lexico(source);
         semantico = new Semantico();
+        codigo = new GeradorDeCodigo(source);
         
     }
 
@@ -51,6 +56,8 @@ public class Sintatico {
         tk = lexico.token();
         if(tk!=null && tk.getSimbolo()==Simbolos.Programa)
         {
+            codigo.gera(Comandos.Start);
+            
             tk = lexico.token();
             if(tk!=null && tk.getSimbolo()==Simbolos.Identificador)
             {
@@ -63,6 +70,8 @@ public class Sintatico {
                     
                     if(tk!=null && tk.getSimbolo()==Simbolos.Ponto)
                     {
+                        codigo.gera(Comandos.Halt);
+                        
                         tk = lexico.token();
                         if(tk==null)
                            return;
@@ -167,12 +176,14 @@ public class Sintatico {
         Lexico(token)
         Analisa_Tipo
       fim*/
+        int nVars=0; //numero de variaveis a alocar
         
         do
         {
             if(tk.getSimbolo()==Simbolos.Identificador)
             {   if(!semantico.isIdentificadorDuplicado(tk.getLexema()))
                 {
+                    nVars++;
                    semantico.insereSimbolo(Tipos.Variavel, tk.getLexema(), false);
                    
                    tk = lexico.token();
@@ -188,11 +199,15 @@ public class Sintatico {
                    } else
                 	   throw new AnaliseSintaticaException(lexico.getN_line(), "token ',' ou ':' esperado.");
                 } else
-                	throw new AnaliseSintaticaException(lexico.getN_line(), "variavel '" + tk.getLexema() + "' declarada mais de uma vez neste escopo.");
+                    semantico.erro(lexico.getN_line(), "variavel '" + tk.getLexema() + "' declarada mais de uma vez neste escopo.");
             } else
             	throw new AnaliseSintaticaException(lexico.getN_line(), "nome de variavel, token identificador esperado."); 	
         }
         while(tk.getSimbolo()!=Simbolos.DoisPontos);
+        
+         codigo.gera(Comandos.Allocate, String.valueOf(proxEndereco), String.valueOf(nVars));
+        proxEndereco+=nVars;
+        
         tk = lexico.token();
         analisaTipo();
         
@@ -248,7 +263,7 @@ public class Sintatico {
                 else
                     throw new AnaliseSintaticaException(lexico.getN_line(),"token ';' esperado");
             }//fim while
-
+            
             tk = lexico.token();
         }
         else
@@ -278,7 +293,12 @@ public class Sintatico {
     fim
     */
         if(tk.getSimbolo() == Simbolos.Identificador)
-            analisaAtribChamadaProcedimento();
+        {
+        	if(semantico.isIdentificadorDeclarado(tk.getLexema()))
+        		analisaAtribChamadaProcedimento();
+        	else
+        		semantico.erro(lexico.getN_line(), "identificador " + tk.getLexema() + " nao declarado.");
+        }
         else{
             if(tk.getSimbolo() == Simbolos.Se)
                 analisaSe();
@@ -300,11 +320,12 @@ public class Sintatico {
         entao Analisa_atribuicao
         senao Chamada_procedimento
     fim*/
+        Simbolo identificador = semantico.buscaSimbolo(tk.getLexema());
         tk = lexico.token();
         if(tk.getSimbolo() == Simbolos.Atribuicao)
-            analisaAtribuicao();
+            analisaAtribuicao(identificador);
         else
-            analisaChamadaProcedimento();
+            analisaChamadaProcedimento(identificador);
     }
     
     private void analisaLeia() throws Exception {
@@ -335,6 +356,10 @@ public class Sintatico {
             {
                 if( semantico.isIdentificadorDeclarado(tk.getLexema()) )
                 {
+                    Simbolo id = semantico.buscaSimbolo(tk.getLexema());
+                    codigo.gera(Comandos.Read);
+                    codigo.gera(Comandos.Store, id.getEndereco());
+                    
                     tk = lexico.token();
                     if(tk.getSimbolo() == Simbolos.FechaParenteses)
                         tk = lexico.token();
@@ -433,13 +458,13 @@ public class Sintatico {
     private void analisaEnquanto() throws Exception {
     /*inÃ­cio
         LÃ©xico(token)
-        Analisa_expressÃ£o
+        Analisa_expressao
         se token.simbolo = sfaÃ§a
-        entÃ£o inÃ­cio
+        entao inÃ­cio
             LÃ©xico(token)
             Analisa_comando_simples
         fim
-        senÃ£o ERRO
+        senao ERRO
     fim*/
         
         tk = lexico.token();
@@ -456,14 +481,14 @@ public class Sintatico {
     
     private void analisaSubRotinas() throws Exception {
     /*inÃ­cio
-        enquanto (token.simbolo = sprocedimento) ou (token.simbolo = sfunÃ§Ã£o)
+        enquanto (token.simbolo = sprocedimento) ou (token.simbolo = sfunÃ§ao)
         faÃ§a inÃ­cio
             se (token.simbolo = sprocedimento)
-            entÃ£o analisa_declaraÃ§Ã£o_procedimento
-            senÃ£o analisa_ declaraÃ§Ã£o_funÃ§Ã£o
+            entao analisa_declaraÃ§ao_procedimento
+            senao analisa_ declaraÃ§ao_funÃ§ao
             se token.sÃ­mbolo = sponto-vÃ­rgula
-            entÃ£o LÃ©xico(token)
-            senÃ£o ERRO
+            entao LÃ©xico(token)
+            senao ERRO
         fim
     fim*/
         
@@ -487,20 +512,20 @@ public class Sintatico {
         LÃ©xico(token)
         nÃ­vel := â€œLâ€� (marca ou novo galho)
         se token.sÃ­mbolo = sidentificador
-        entÃ£o inÃ­cio
+        entao inÃ­cio
             pesquisa_declproc_tabela(token.lexema)
-            se nÃ£o encontrou
-            entÃ£o inÃ­cio
+            se nao encontrou
+            entao inÃ­cio
                 Insere_tabela(token.lexema,â€�procedimentoâ€�,nÃ­vel, rÃ³tulo)
                 LÃ©xico(token)
                 se token.simbolo = sponto_vÃ­rgula
-                entÃ£o Analisa_bloco
-                senÃ£o ERRO
+                entao Analisa_bloco
+                senao ERRO
             fim
-            senÃ£o ERRO
+            senao ERRO
         fim
-        senÃ£o ERRO
-        DESEMPILHA OU VOLTA NÃ�VEL
+        senao ERRO
+        DESEMPILHA OU VOLTA NÍVEL
     fim*/
         
         tk = lexico.token();
@@ -509,9 +534,21 @@ public class Sintatico {
             if(!semantico.isIdentificadorDuplicado(tk.getLexema()))
             {
                 semantico.insereSimbolo(Tipos.Procedimento, tk.getLexema(), true);
+                codigo.gera(Comandos.Jump, proxRotulo);
+                int aux = proxRotulo;
+                proxRotulo++;
+                codigo.geraLabel(proxRotulo);
+                Simbolo s = semantico.buscaSimbolo(tk.getLexema());
+                s.setEndereco(proxRotulo);
+                proxRotulo++;
+                
                 tk = lexico.token();
+                
                 if(tk.getSimbolo()==Simbolos.PontoVirgula)
-                    analisaBloco();
+                {   analisaBloco();
+                    codigo.gera(Comandos.Return);
+                    codigo.geraLabel(aux);
+                }
                 else
                     throw new AnaliseSintaticaException(lexico.getN_line(), "token ';' esperado.");
             }
@@ -528,32 +565,32 @@ public class Sintatico {
         LÃ©xico(token)
         nÃ­vel := â€œLâ€� (marca ou novo galho)
         se token.sÃ­mbolo = sidentificador
-        entÃ£o inÃ­cio
+        entao inÃ­cio
             pesquisa_declfunc_tabela(token.lexema)
-            se nÃ£o encontrou
-            entÃ£o inÃ­cio
+            se nao encontrou
+            entao inÃ­cio
                 Insere_tabela(token.lexema,â€�â€�,nÃ­vel,rÃ³tulo)
                 LÃ©xico(token)
                 se token.sÃ­mbolo = sdoispontos
-                entÃ£o inÃ­cio
+                entao inÃ­cio
                     LÃ©xico(token)
                     se (token.sÃ­mbolo = Sinteiro) ou (token.sÃ­mbolo = Sbooleano)
-                    entÃ£o inÃ­cio
+                    entao inÃ­cio
                         se (token.sÃ­mbolo = Sinteger)
-                        entÃ£o TABSIMB[pc].tipo:=â€œfunÃ§Ã£o inteiroâ€�
-                        senÃ£o TABSIMB[pc].tipo:=â€œfunÃ§Ã£o booleanâ€�
+                        entao TABSIMB[pc].tipo:=â€œfunÃ§ao inteiroâ€�
+                        senao TABSIMB[pc].tipo:=â€œfunÃ§ao booleanâ€�
                         LÃ©xico(token)
                         se token.sÃ­mbolo = sponto_vÃ­rgula
-                        entÃ£o Analisa_bloco
+                        entao Analisa_bloco
                     fim
-                    senÃ£o ERRO
+                    senao ERRO
                 fim
-                senÃ£o ERRO
+                senao ERRO
             fim
-            senÃ£o ERRO
+            senao ERRO
         fim
-        senÃ£o ERRO
-        DESEMPILHA OU VOLTA NÃ�VEL
+        senao ERRO
+        DESEMPILHA OU VOLTA NÍVEL
     fim*/
         
         tk = lexico.token();
@@ -562,6 +599,17 @@ public class Sintatico {
             if(!semantico.isIdentificadorDuplicado(tk.getLexema()))
             {
                 semantico.insereSimbolo(Tipos.Funcao, tk.getLexema(), true);
+                codigo.gera(Comandos.Jump, proxRotulo);
+                int aux = proxRotulo;
+                proxRotulo++;
+                codigo.gera(Comandos.Allocate, proxEndereco, 1); 
+                //MODIFICAR ANALISA ATRIB PARA RETORNO DE FUNCAO
+                proxEndereco++;
+                codigo.geraLabel(proxRotulo);
+                Simbolo s = semantico.buscaSimbolo(tk.getLexema());
+                s.setEndereco(proxRotulo);
+                proxRotulo++;
+                
                 tk = lexico.token();
                 if(tk.getSimbolo()==Simbolos.DoisPontos)
                 {
@@ -575,7 +623,10 @@ public class Sintatico {
                     
                         tk = lexico.token();
                         if(tk.getSimbolo()==Simbolos.PontoVirgula)
-                            analisaBloco();
+                        {   analisaBloco();
+                            codigo.gera(Comandos.Return);
+                            codigo.geraLabel(aux);
+                        }
                     }
                     else
                         throw new AnaliseSintaticaException(lexico.getN_line(), "tipo de funcao, 'inteiro' ou 'booleano' esperado.");
@@ -584,33 +635,40 @@ public class Sintatico {
                     throw new AnaliseSintaticaException(lexico.getN_line(), "token ':' esperado apos nome da funcao.");
             }
             else
-                throw new AnaliseSintaticaException(lexico.getN_line(), "funcao " + tk.getLexema() + " declarada mais de uma vez neste escopo.");
+                semantico.erro(lexico.getN_line(), "funcao " + tk.getLexema() + " declarada mais de uma vez neste escopo.");
         }
         else
             throw new AnaliseSintaticaException(lexico.getN_line(), "nome de funcao, identificador esperado.");
           
     }
     
-    private void analisaAtribuicao() throws Exception {
+    private void analisaAtribuicao(Simbolo id) throws Exception {
+        if(id.getTipo()==Tipos.FuncaoBooleano || id.getTipo()==Tipos.FuncaoInteiro)
+            //gera STR da expressao em 1 endereço a menos do que o numero de
+            //variaveis allocadas neste escopo
         tk = lexico.token();
         analisaExpressao();
+        semantico.analisaExpressao(expressao, lexico.getN_line());
+        codigo.gera(Comandos.Store, id.getEndereco());
     }
     
-    private void analisaChamadaFuncao() throws Exception {
+    private void analisaChamadaFuncao(Simbolo id) throws Exception {
         
+        semantico.insereSimbolo(Tipos.Inteiro, "retorno", false);
+        codigo.gera(Comandos.Call,id.getEndereco());
     }
     
-    private void analisaChamadaProcedimento() throws Exception {
-        
+    private void analisaChamadaProcedimento(Simbolo id) throws Exception {
+        codigo.gera(Comandos.Call, id.getEndereco());
     }
     
     private void analisaExpressao() throws Exception {
     /*inÃ­cio
-        Analisa_expressÃ£o_simples
+        Analisa_expressao_simples
         se (token.simbolo = (smaior ou smaiorig ou sig ou smenor ou smenorig ou sdif))
-        entÃ£o inicio
+        entao inicio
             LÃ©xico(token)
-            Analisa_expressÃ£o_simples
+            Analisa_expressao_simples
         fim
     fim*/
         expressao = new ArrayList<Token>();
@@ -628,7 +686,7 @@ public class Sintatico {
     private void analisaExpressaoSimples() throws Exception {
     /*inÃ­cio
         se (token.simbolo = smais) ou (token.simbolo = smenos)
-        entÃ£o
+        entao
             LÃ©xico(token)
         Analisa_termo
         enquanto ((token.simbolo = smais) ou (token.simbolo = smenos) ou (token.simbolo = sou))
@@ -666,7 +724,7 @@ public class Sintatico {
     /*inÃ­cio
         Analisa_fator
         enquanto ((token.simbolo = smult) ou (token.simbolo = sdiv) ou (token.simbolo = se))
-        entÃ£o inÃ­cio
+        entao inÃ­cio
             LÃ©xico(token)
             Analisa_fator
         fim
@@ -683,45 +741,47 @@ public class Sintatico {
     
     private void analisaFator() throws Exception {
     /*InÃ­cio
-        Se token.simbolo = sidentificador (* VariÃ¡vel ou FunÃ§Ã£o*)
-        EntÃ£o inicio
+        Se token.simbolo = sidentificador (* VariÃ¡vel ou FunÃ§ao*)
+        Entao inicio
             Se pesquisa_tabela(token.lexema,nÃ­vel,ind)
-            EntÃ£o Se (TabSimb[ind].tipo = â€œfunÃ§Ã£o inteiroâ€�) ou (TabSimb[ind].tipo = â€œfunÃ§Ã£o booleanoâ€�)
-                  EntÃ£o Analisa_chamada_funÃ§Ã£o
-                  SenÃ£o LÃ©xico(token)
-            SenÃ£o ERRO
+            Entao Se (TabSimb[ind].tipo = â€œfunÃ§ao inteiroâ€�) ou (TabSimb[ind].tipo = â€œfunÃ§ao booleanoâ€�)
+                  Entao Analisa_chamada_funÃ§ao
+                  Senao LÃ©xico(token)
+            Senao ERRO
             Fim
-        SenÃ£o Se (token.simbolo = snumero) (*NÃºmero*)
-              EntÃ£o LÃ©xico(token)
-              SenÃ£o Se token.sÃ­mbolo = snao (*NAO*)
-                    EntÃ£o inÃ­cio
+        Senao Se (token.simbolo = snumero) (*NÃºmero*)
+              Entao LÃ©xico(token)
+              Senao Se token.sÃ­mbolo = snao (*NAO*)
+                    Entao inÃ­cio
                         LÃ©xico(token)
                         Analisa_fator
                         Fim
-                    SenÃ£o Se token.simbolo = sabre_parenteses (* expressÃ£o entre parenteses *)
-                          EntÃ£o inÃ­cio
+                    Senao Se token.simbolo = sabre_parenteses (* expressao entre parenteses *)
+                          Entao inÃ­cio
                               LÃ©xico(token)
-                              Analisa_expressÃ£o(token)
+                              Analisa_expressao(token)
                               Se token.simbolo = sfecha_parenteses
-                              EntÃ£o LÃ©xico(token)
-                              SenÃ£o ERRO
+                              Entao LÃ©xico(token)
+                              Senao ERRO
                               Fim
-                          SenÃ£o Se (token.lexema = verdadeiro) ou (token.lexema = falso)
-                                EntÃ£o LÃ©xico(token)
-                                SenÃ£o ERRO
+                          Senao Se (token.lexema = verdadeiro) ou (token.lexema = falso)
+                                Entao LÃ©xico(token)
+                                Senao ERRO
       Fim*/
         
         expressao.add(tk);
         
         if(tk.getSimbolo()==Simbolos.Identificador)
         {
-            Simbolo s = semantico.buscaSimbolo(tk.getLexema());
-            if(s!=null)
-            {   if(s.getTipo()==Tipos.FuncaoInteiro || s.getTipo()==Tipos.FuncaoBooleano)
-                    analisaChamadaFuncao();
-                else
-                    tk = lexico.token();
+            
+            if(semantico.isIdentificadorDeclarado(tk.getLexema()))
+            {
+                Simbolo s = semantico.buscaSimbolo(tk.getLexema());
                 
+                if(s.getTipo()==Tipos.FuncaoInteiro || s.getTipo()==Tipos.FuncaoBooleano)
+                    analisaChamadaFuncao(s);
+                else
+                    tk = lexico.token();  
             }
             else
                 semantico.erro(lexico.getN_line(),"funcao/variavel nao declarada.");
