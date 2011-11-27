@@ -103,9 +103,9 @@ public class Compilador extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLoadActionPerformed
 
     private void btnCompileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCompileActionPerformed
+        try{
         analisadorSintatico = new Sintatico(sourceFile);
         
-        try{
             analisadorSintatico.execute();
             txtSaida.setText("Compilado com sucesso!");
         }
