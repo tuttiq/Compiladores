@@ -205,7 +205,7 @@ public class Sintatico {
         }
         while(tk.getSimbolo()!=Simbolos.DoisPontos);
         
-         codigo.gera(Comandos.Allocate, String.valueOf(proxEndereco), String.valueOf(nVars));
+        codigo.gera(Comandos.Allocate, proxEndereco, nVars);
         proxEndereco+=nVars;
         
         tk = lexico.token();
@@ -642,14 +642,17 @@ public class Sintatico {
           
     }
     
+    
     private void analisaAtribuicao(Simbolo id) throws Exception {
-        if(id.getTipo()==Tipos.FuncaoBooleano || id.getTipo()==Tipos.FuncaoInteiro)
-            //gera STR da expressao em 1 endereço a menos do que o numero de
-            //variaveis allocadas neste escopo
-        tk = lexico.token();
+        
+        tk = lexico.token(); 
         analisaExpressao();
-        semantico.analisaExpressao(expressao, lexico.getN_line());
-        codigo.gera(Comandos.Store, id.getEndereco());
+        semantico.analisaExpressao(id,expressao, lexico.getN_line());
+        
+        if(id.getTipo()==Tipos.FuncaoBooleano || id.getTipo()==Tipos.FuncaoInteiro)
+            codigo.gera(Comandos.Store, proxEndereco-semantico.getNVars()-1);
+        else
+            codigo.gera(Comandos.Store, id.getEndereco());
     }
     
     private void analisaChamadaFuncao(Simbolo id) throws Exception {
