@@ -35,17 +35,23 @@ public class Semantico {
         throw new AnaliseSemanticaException(line,msg);
     }
     
+    public int getNVars() {
+        return tabela.getNVars();
+    }
+    
     public boolean isIdentificadorDuplicado(String lexema)
     {
-        return false;
+        return tabela.isDeclaradoNoEscopo(lexema);
     }
     
     public boolean isIdentificadorDeclarado(String lexema) {
-        return true;
+        return tabela.isDeclarado(lexema);
     }
-    public void analisaExpressao(ArrayList<Token> expressao, int line) throws Exception
+    
+    public void analisaExpressao(Simbolo id, ArrayList<Token> expressao, int line) throws Exception
 	{
 		ArrayList<Token> novaExpressao = posOrdem(expressao);
+                
 		//tchururu analise complexa com regras chatas
 		erro(line, "expressao invalida");
 	}

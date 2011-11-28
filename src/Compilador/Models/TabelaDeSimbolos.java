@@ -39,6 +39,35 @@ public class TabelaDeSimbolos {
             s.setTipo(tipo);
         }
     }
+    
+    public int getNVars() {
+        
+        int n = 0;
+        
+        for(int i=tabela.size()-1; !tabela.get(i).isNovoEscopo(); i--)
+            n++;
+        
+        return n;
+    }
+    
+    public boolean isDeclaradoNoEscopo(String lexema) {
+        
+        for(int i=tabela.size()-1; !tabela.get(i).isNovoEscopo(); i--)
+           if(tabela.get(i).getLexema().equals(lexema))
+               return true;
+               
+        return false;
+    }
+    
+    public boolean isDeclarado(String lexema) {
+        
+        for(Simbolo s : tabela)
+           if(s.getLexema().equals(lexema))
+               return true;
+               
+        return false;
+    }
+    
 
 
 }
