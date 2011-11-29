@@ -25,6 +25,7 @@ public class Lexico {
        {
            JOptionPane.showMessageDialog(null, "I/O: Erro ao ler o arquivo.", "Erro!", JOptionPane.ERROR_MESSAGE);
        }
+       n_line = 0;
        
             
     }
@@ -62,13 +63,13 @@ public class Lexico {
             Fecha arquivo fonte
             Fim. */
 
-        while(caracter=='\n')
+        while(caracter==10 || caracter ==13)
         {   n_line++;
             caracter = (char) in.read();
         }
         if( (int)caracter != -1 && caracter!='\uffff') { 
 
-            while( (int)caracter!=-1 && (caracter=='{' || Character.isSpaceChar(caracter)) )
+            while( (int)caracter!=-1 && (caracter=='{' || caracter==8 || caracter==9 || caracter==32 ) )
             {
                 if(caracter=='{')
                 {
@@ -78,12 +79,16 @@ public class Lexico {
                     }
                     caracter = (char) in.read();
                 }
-                while( (int)caracter!=-1 && caracter!='\uffff' && (Character.isSpaceChar(caracter) || caracter=='\n')) 
+                while( (int)caracter!=-1 && caracter!='\uffff' && (caracter==8 || caracter==9 || caracter==32 || caracter==10 || caracter ==13))
+                {   if(caracter==10 || caracter ==13 || caracter=='\uffff')
+                        n_line++;
                     caracter = (char) in.read();
+                }
             }
            if( (int)caracter != -1 && caracter!='\uffff') 
            {
                Token tk = pegaToken();
+               System.out.println(tk);
                return tk;
            }
         }    
@@ -103,7 +108,7 @@ public class Lexico {
                     Entao Trata Atribuicao
                     Senao Se caracter = {+,-,*}
                           Entao Trata Operador Aritmehtico
-                          Senao Se caracter = {<,>,=}
+                          Senao Se caracter = {<,>,=, !}
                                 Entao TrataOperadorRelacional
                                 Senao Se caracter = {; , ( ) .}
                                       Entao Trata Pontuacao
@@ -119,7 +124,7 @@ public class Lexico {
             return trataAtribuicao();
         if(caracter=='+' || caracter=='-' || caracter=='*')
             return trataOpAritmetico();   
-        if(caracter=='<' || caracter=='>' || caracter=='=')
+        if(caracter=='<' || caracter=='>' || caracter=='=' || caracter=='!')
             return trataOpRelacional();
         if(caracter==';' || caracter==',' || caracter=='(' || caracter==')' || caracter=='.')
             return trataPontuacao();

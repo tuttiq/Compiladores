@@ -111,7 +111,8 @@ public class Compilador extends javax.swing.JFrame {
         }
         catch(Exception erro)
         {
-            txtSaida.setText( erro.getMessage() );
+            txtSaida.setText( erro.getClass() + " " + erro.getMessage() );
+           // erro.printStackTrace();
         }
     }//GEN-LAST:event_btnCompileActionPerformed
 

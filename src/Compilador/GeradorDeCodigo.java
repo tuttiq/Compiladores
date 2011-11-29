@@ -11,7 +11,7 @@ public class GeradorDeCodigo {
 	private Formatter out;
 	
 	public GeradorDeCodigo(File source) throws Exception {
-		arquivo = new File(source.getPath() + ".obj");
+		arquivo = new File(source.getPath() + ".vmobj");
 		
 		if(arquivo.exists())
 			arquivo.delete();
@@ -21,27 +21,34 @@ public class GeradorDeCodigo {
 	}
 	
 	public void geraLabel(int n) {
-		out.format(Comandos.Label + n + "%tNULL%n");
-	}
+		out.format(Comandos.Label + n + "\tNULL%n");
+                System.out.println(Comandos.Label + n + "\tNULL\n");
+        }
 	
 	public void gera(String op) {
-		out.format("%t" + op + "%n");
-	}
+            System.out.println("\t" + op + "\n");
+            out.format("\t" + op + "%n");
+                
+        }
 
 	public void gera(String op, String arg1) {
-		out.format("%t" + op + "%t" + arg1 + "%n");
+	System.out.println("\t" + op + "\t" + arg1 + "\n");
+            out.format("\t" + op + "\t" + arg1 + "%n");
 	}
 	
         public void gera(String op, int arg1) {
-		out.format("%t" + op + "%t" + Comandos.Label + arg1 + "%n");
+            System.out.println("\t" + op + "\t" +  arg1 + "\n");
+		out.format("\t" + op + "\t" +  arg1 + "%n");
 	}
         
 	public void gera(String op, String arg1, String arg2) {
-		out.format("%t" + op + "%t" + arg1 + "%t" + arg2 + "%n");
+            System.out.println("\t" + op + "\t" + arg1 + "\t" + arg2 +  "\n");
+		out.format("\t" + op + "\t" + arg1 + "\t" + arg2 + "%n");
 	}
         
         public void gera(String op, int arg1, int arg2) {
-		out.format("%t" + op + "%t" + arg1 + "%t" + arg2 + "%n");
+            System.out.println("\t" + op + "\t" + arg1 + "\t" + arg2 +  "\n");
+		out.format("\t" + op + "\t" + arg1 + "\t" + arg2 + "%n");
 	}
 	
 	public void close() {

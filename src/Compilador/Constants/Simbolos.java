@@ -43,4 +43,31 @@ public class Simbolos {
     public static final int FechaParenteses = 37;
     public static final int Ponto = 38;
     
+    public static boolean isOperando(int termo) {
+      if( termo == Identificador
+                       || termo== Numero
+                       || termo== Verdadeiro
+                       || termo== Falso)
+          return true;
+      return false;
+    }
+    
+    public static boolean isOperador(int termo) {
+       if( termo == Ou ||
+                       termo == E ||
+                       termo == Nao ||
+                       termo == Maior ||
+                       termo == MaiorIgual ||
+                       termo == Menor ||
+                       termo == MenorIgual ||
+                       termo == Igual ||
+                       termo == Diferente ||
+                       termo == Mais ||
+                       termo == Menos ||
+                       termo == Multiplicacao ||
+                       termo == Divisao)
+           return true;
+       return false;
+    }
+    
 }

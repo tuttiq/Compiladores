@@ -1,5 +1,6 @@
 package Compilador.Models;
 
+import Compilador.Constants.Tipos;
 import java.util.ArrayList;
 
 public class TabelaDeSimbolos {
@@ -14,6 +15,10 @@ public class TabelaDeSimbolos {
         tabela.add(new Simbolo(tipo,lexema,escopo,end_memoria));
     }
 
+    public void remove(Simbolo s)
+    {
+        tabela.remove(s);
+    }
     private int buscaIndex(String lexema) {
        for(Simbolo s : tabela)
        {
@@ -31,23 +36,37 @@ public class TabelaDeSimbolos {
             return null;
     }
 
-    public void alteraTipo(String lexema, int tipo) {
-        int i = buscaIndex(lexema);
+    public void alteraTipo(int tipo) {
         
-        if(i!=-1)
-        {   Simbolo s = tabela.get(i);
-            s.setTipo(tipo);
+        for(Simbolo s : tabela)
+        {   if(s.getTipo()== Tipos.Variavel && (tipo == Tipos.Inteiro || tipo == Tipos.Booleano) )
+                s.setTipo(tipo);
+            if(s.getTipo()== Tipos.Funcao && (tipo == Tipos.FuncaoInteiro || tipo == Tipos.FuncaoBooleano))
+                s.setTipo(tipo);
         }
     }
     
-    public int getNVars() {
+    public void limpaEscopo() {
         
-        int n = 0;
+       
+        int i = 0;
+        
+        for(i=tabela.size()-1; !tabela.get(i).isNovoEscopo(); i--);
+        
+        tabela.get(i).setNovoEscopo(false);
+        
+    }
+    
+    public ArrayList<Simbolo> getVars() {
+        
+        ArrayList<Simbolo> vars = new ArrayList<Simbolo>();
         
         for(int i=tabela.size()-1; !tabela.get(i).isNovoEscopo(); i--)
-            n++;
-        
-        return n;
+        {    
+            if(tabela.get(i).getTipo()==Tipos.Inteiro ||tabela.get(i).getTipo()==Tipos.Booleano)
+                vars.add(tabela.get(i));
+        }
+        return vars;
     }
     
     public boolean isDeclaradoNoEscopo(String lexema) {
