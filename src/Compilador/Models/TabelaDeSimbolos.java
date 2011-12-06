@@ -49,11 +49,13 @@ public class TabelaDeSimbolos {
     public void limpaEscopo() {
         
        
-        int i = 0;
+        int i = tabela.size()-1;
         
-        for(i=tabela.size()-1; !tabela.get(i).isNovoEscopo(); i--);
+        while(i>0 && !(tabela.get(i).isNovoEscopo()))
+            i--;
         
-        tabela.get(i).setNovoEscopo(false);
+        
+            tabela.get(i).setNovoEscopo(false);
         
     }
     
@@ -61,7 +63,7 @@ public class TabelaDeSimbolos {
         
         ArrayList<Simbolo> vars = new ArrayList<Simbolo>();
         
-        for(int i=tabela.size()-1; !tabela.get(i).isNovoEscopo(); i--)
+        for(int i=tabela.size()-1; i>0 && !(tabela.get(i).isNovoEscopo()); i--)
         {    
             if(tabela.get(i).getTipo()==Tipos.Inteiro ||tabela.get(i).getTipo()==Tipos.Booleano)
                 vars.add(tabela.get(i));
@@ -71,7 +73,7 @@ public class TabelaDeSimbolos {
     
     public boolean isDeclaradoNoEscopo(String lexema) {
         
-        for(int i=tabela.size()-1; !tabela.get(i).isNovoEscopo(); i--)
+        for(int i=tabela.size()-1; i>0 && !(tabela.get(i).isNovoEscopo()); i--)
            if(tabela.get(i).getLexema().equals(lexema))
                return true;
                

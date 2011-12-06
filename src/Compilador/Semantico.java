@@ -215,8 +215,8 @@ public class Semantico {
                
                else if (Simbolos.isOperador(termo))
                {
-                  int termoAnterior = expressao.get(i-1).getSimbolo();
-                  if(i-1 == -1 || termoAnterior == Simbolos.AbreParenteses || Simbolos.isOperador(termoAnterior))
+                  
+                  if(i-1 == -1)
                   {
                       if(termo!=Simbolos.Nao)
                           novaExpressao.add(new Token("0", Simbolos.Numero));
@@ -224,16 +224,29 @@ public class Semantico {
                       novaExpressao.add(expressao.get(i+1));
                       novaExpressao.add(expressao.get(i));
                       i++;
+                  }else
+                  { 
+                      int termoAnterior = expressao.get(i-1).getSimbolo();
+                      
+                      if(termoAnterior == Simbolos.AbreParenteses || Simbolos.isOperador(termoAnterior))
+                      {
+                          if(termo!=Simbolos.Nao)
+                              novaExpressao.add(new Token("0", Simbolos.Numero));
+
+                          novaExpressao.add(expressao.get(i+1));
+                          novaExpressao.add(expressao.get(i));
+                          i++;
+                      }
+                      else
+                      {    while(!pilha.empty() &&
+                                  prioridades.get(termo)<prioridades.get(pilha.lastElement().getSimbolo()) )
+                          {
+                              novaExpressao.add(pilha.pop());
+                          }
+                          pilha.push(expressao.get(i));
+                      }
                   }
                   
-                  else
-                  {    while(!pilha.empty() &&
-                              prioridades.get(termo)<prioridades.get(pilha.lastElement().getSimbolo()) )
-                      {
-                          novaExpressao.add(pilha.pop());
-                      }
-                      pilha.push(expressao.get(i));
-                  }
               }
               else if(termo==Simbolos.AbreParenteses)
                   pilha.push(expressao.get(i));

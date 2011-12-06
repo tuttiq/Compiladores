@@ -67,7 +67,11 @@ public class Sintatico {
                 if(tk!=null && tk.getSimbolo()==Simbolos.PontoVirgula)
                 {
                     analisaBloco();
-                    
+                    ArrayList<Simbolo> vars = semantico.getVariaveis();
+        codigo.gera(Comandos.Deallocate, proxEndereco-vars.size(), vars.size());
+        semantico.removeSimbolos(vars);
+        semantico.limpaEscopo();
+        proxEndereco-=vars.size();
                     if(tk!=null && tk.getSimbolo()==Simbolos.Ponto)
                     {
                         codigo.gera(Comandos.Halt);
@@ -107,6 +111,8 @@ public class Sintatico {
         analisaEtapaVariaveis();
         analisaSubRotinas();
         analisaComandos();
+        
+        
 
     }
     
@@ -271,11 +277,7 @@ public class Sintatico {
                 else if(tk.getSimbolo() != Simbolos.Fim)
                         throw new AnaliseSintaticaException(lexico.getN_line(),"token ';' esperado");
             }//fim while
-            ArrayList<Simbolo> vars = semantico.getVariaveis();
-            codigo.gera(Comandos.Deallocate, proxEndereco-vars.size(), vars.size());
-            semantico.removeSimbolos(vars);
-            semantico.limpaEscopo();
-            proxEndereco-=vars.size();
+            
             tk = lexico.token();
         }
         else
@@ -473,37 +475,37 @@ public class Sintatico {
                 else
                     semantico.erro(lexico.getN_line(), "identificador '" + termo.getLexema() + "' nao declarado.");
             }
-            if(termo.getSimbolo()==Simbolos.Numero)
+            else if(termo.getSimbolo()==Simbolos.Numero)
                 codigo.gera(Comandos.LoadConst, termo.getLexema());
-            if(termo.getSimbolo()==Simbolos.Verdadeiro)
+            else if(termo.getSimbolo()==Simbolos.Verdadeiro)
                 codigo.gera(Comandos.LoadConst, 1);
-            if(termo.getSimbolo()==Simbolos.Falso)
+            else if(termo.getSimbolo()==Simbolos.Falso)
                 codigo.gera(Comandos.LoadConst, 0);
-            if(termo.getSimbolo()==Simbolos.Ou)
+            else if(termo.getSimbolo()==Simbolos.Ou)
                 codigo.gera(Comandos.Or);
-            if(termo.getSimbolo()==Simbolos.E)
+            else if(termo.getSimbolo()==Simbolos.E)
                 codigo.gera(Comandos.And);
-            if(termo.getSimbolo()==Simbolos.Nao)
+            else if(termo.getSimbolo()==Simbolos.Nao)
                 codigo.gera(Comandos.Invert);
-            if(termo.getSimbolo()==Simbolos.Menor)
+            else if(termo.getSimbolo()==Simbolos.Menor)
                 codigo.gera(Comandos.CmpLower);
-            if(termo.getSimbolo()==Simbolos.MenorIgual)
+            else if(termo.getSimbolo()==Simbolos.MenorIgual)
                 codigo.gera(Comandos.CmpLowerEqual);
-            if(termo.getSimbolo()==Simbolos.Maior)
+            else if(termo.getSimbolo()==Simbolos.Maior)
                 codigo.gera(Comandos.CmpHigher);
-            if(termo.getSimbolo()==Simbolos.MaiorIgual)
+            else if(termo.getSimbolo()==Simbolos.MaiorIgual)
                 codigo.gera(Comandos.CmpHigherEqual);
-            if(termo.getSimbolo()==Simbolos.Igual)
+            else if(termo.getSimbolo()==Simbolos.Igual)
                 codigo.gera(Comandos.CmpEqual);
-            if(termo.getSimbolo()==Simbolos.Diferente)
+            else if(termo.getSimbolo()==Simbolos.Diferente)
                 codigo.gera(Comandos.CmpDifferent);
-            if(termo.getSimbolo()==Simbolos.Mais)
+            else if(termo.getSimbolo()==Simbolos.Mais)
                 codigo.gera(Comandos.Add);
-            if(termo.getSimbolo()==Simbolos.Menos)
+            else if(termo.getSimbolo()==Simbolos.Menos)
                 codigo.gera(Comandos.Subtract);
-            if(termo.getSimbolo()==Simbolos.Multiplicacao)
+            else if(termo.getSimbolo()==Simbolos.Multiplicacao)
                 codigo.gera(Comandos.Multiply);
-            if(termo.getSimbolo()==Simbolos.Divisao)
+            else if(termo.getSimbolo()==Simbolos.Divisao)
                 codigo.gera(Comandos.Divide);
         }
         
@@ -674,6 +676,7 @@ public class Sintatico {
                 int aux = proxRotulo;
                 proxRotulo++;
                 codigo.geraLabel(proxRotulo);
+                proxEndereco++;//alocado para end de retorno
                 Simbolo s = semantico.buscaSimbolo(tk.getLexema());
                 s.setEndereco(proxRotulo);
                 proxRotulo++;
@@ -682,7 +685,13 @@ public class Sintatico {
                 
                 if(tk.getSimbolo()==Simbolos.PontoVirgula)
                 {   analisaBloco();
+                    ArrayList<Simbolo> vars = semantico.getVariaveis();
+                    codigo.gera(Comandos.Deallocate, proxEndereco-vars.size(), vars.size());
+                    semantico.removeSimbolos(vars);
+                    semantico.limpaEscopo();
+                    proxEndereco-=vars.size();
                     codigo.gera(Comandos.Return);
+                    proxEndereco--; //do endereço de retorno.
                     codigo.geraLabel(aux);
                 }
                 else
@@ -739,7 +748,7 @@ public class Sintatico {
                 int aux = proxRotulo;
                 proxRotulo++;
                 codigo.geraLabel(proxRotulo);
-                proxEndereco+=2;
+                proxEndereco+=2; //um para o LDC e um que eh alocado para end de retorno
                 Simbolo s = semantico.buscaSimbolo(tk.getLexema());
                 s.setEndereco(proxRotulo);
                 proxRotulo++;
@@ -758,8 +767,13 @@ public class Sintatico {
                         tk = lexico.token();
                         if(tk.getSimbolo()==Simbolos.PontoVirgula)
                         {   analisaBloco();
+                            ArrayList<Simbolo> vars = semantico.getVariaveis();
+                            codigo.gera(Comandos.Deallocate, proxEndereco-vars.size(), vars.size());
+                            semantico.removeSimbolos(vars);
+                            semantico.limpaEscopo();
+                            proxEndereco-=vars.size();
                             codigo.gera(Comandos.Return);
-                            proxEndereco-=2;
+                            proxEndereco-=2;// um do valor de retorno e um do end de retorno
                             codigo.geraLabel(aux);
                         }
                     }
@@ -798,37 +812,37 @@ public class Sintatico {
                 else
                     semantico.erro(lexico.getN_line(), "identificador '" + termo.getLexema() + "' nao declarado.");
             }
-            if(termo.getSimbolo()==Simbolos.Numero)
+            else if(termo.getSimbolo()==Simbolos.Numero)
                 codigo.gera(Comandos.LoadConst, termo.getLexema());
-            if(termo.getSimbolo()==Simbolos.Verdadeiro)
+            else if(termo.getSimbolo()==Simbolos.Verdadeiro)
                 codigo.gera(Comandos.LoadConst, 1);
-            if(termo.getSimbolo()==Simbolos.Falso)
+            else if(termo.getSimbolo()==Simbolos.Falso)
                 codigo.gera(Comandos.LoadConst, 0);
-            if(termo.getSimbolo()==Simbolos.Ou)
+            else if(termo.getSimbolo()==Simbolos.Ou)
                 codigo.gera(Comandos.Or);
-            if(termo.getSimbolo()==Simbolos.E)
+            else if(termo.getSimbolo()==Simbolos.E)
                 codigo.gera(Comandos.And);
-            if(termo.getSimbolo()==Simbolos.Nao)
+            else if(termo.getSimbolo()==Simbolos.Nao)
                 codigo.gera(Comandos.Invert);
-            if(termo.getSimbolo()==Simbolos.Menor)
+            else if(termo.getSimbolo()==Simbolos.Menor)
                 codigo.gera(Comandos.CmpLower);
-            if(termo.getSimbolo()==Simbolos.MenorIgual)
+            else if(termo.getSimbolo()==Simbolos.MenorIgual)
                 codigo.gera(Comandos.CmpLowerEqual);
-            if(termo.getSimbolo()==Simbolos.Maior)
+            else if(termo.getSimbolo()==Simbolos.Maior)
                 codigo.gera(Comandos.CmpHigher);
-            if(termo.getSimbolo()==Simbolos.MaiorIgual)
+            else if(termo.getSimbolo()==Simbolos.MaiorIgual)
                 codigo.gera(Comandos.CmpHigherEqual);
-            if(termo.getSimbolo()==Simbolos.Igual)
+            else if(termo.getSimbolo()==Simbolos.Igual)
                 codigo.gera(Comandos.CmpEqual);
-            if(termo.getSimbolo()==Simbolos.Diferente)
+            else if(termo.getSimbolo()==Simbolos.Diferente)
                 codigo.gera(Comandos.CmpDifferent);
-            if(termo.getSimbolo()==Simbolos.Mais)
+            else if(termo.getSimbolo()==Simbolos.Mais)
                 codigo.gera(Comandos.Add);
-            if(termo.getSimbolo()==Simbolos.Menos)
+            else if(termo.getSimbolo()==Simbolos.Menos)
                 codigo.gera(Comandos.Subtract);
-            if(termo.getSimbolo()==Simbolos.Multiplicacao)
+            else if(termo.getSimbolo()==Simbolos.Multiplicacao)
                 codigo.gera(Comandos.Multiply);
-            if(termo.getSimbolo()==Simbolos.Divisao)
+            else if(termo.getSimbolo()==Simbolos.Divisao)
                 codigo.gera(Comandos.Divide);
         }
         semantico.analisaExpressao(id,expressao, lexico.getN_line());
@@ -845,10 +859,12 @@ public class Sintatico {
        codigo.gera(Comandos.LoadConst, 0); //espaço para o valor de retorno na pilha
                 
       codigo.gera(Comandos.Call,id.getEndereco());
+      
     }
     
     private void analisaChamadaProcedimento(Simbolo id) throws Exception {
         codigo.gera(Comandos.Call, id.getEndereco());
+        
     }
     
     private void analisaExpressao() throws Exception {
