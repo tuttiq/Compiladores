@@ -420,7 +420,14 @@ public class Sintatico {
 	            if( semantico.isIdentificadorDeclarado(tk.getLexema()) )
 	            {
                         Simbolo s = semantico.buscaSimbolo(tk.getLexema());
-                        codigo.gera(Comandos.LoadValue, s.getEndereco());
+                        if(s.getTipo()==Tipos.FuncaoInteiro)
+                        {
+                            analisaChamadaFuncao(s);
+                            codigo.gera(Comandos.LoadValue, proxEndereco-1);
+                        }
+                        else
+                            codigo.gera(Comandos.LoadValue, s.getEndereco());
+                        
                         codigo.gera(Comandos.Print);
                         
 	                tk = lexico.token();

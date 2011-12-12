@@ -215,7 +215,7 @@ public class Semantico {
                else if (Simbolos.isOperador(termo))
                {                  
                      while(!pilha.empty() &&
-                              prioridades.get(termo)<prioridades.get(pilha.lastElement().getSimbolo()) )
+                              prioridades.get(pilha.peek().getSimbolo())>=prioridades.get(termo) )
                       {
                           novaExpressao.add(pilha.pop());
                       }
