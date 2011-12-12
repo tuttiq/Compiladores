@@ -1,5 +1,8 @@
 package Compilador.GUI;
 
+import Compilador.Exceptions.AnaliseLexicaException;
+import Compilador.Exceptions.AnaliseSemanticaException;
+import Compilador.Exceptions.AnaliseSintaticaException;
 import Compilador.Sintatico;
 import java.io.BufferedReader;
 import java.io.File;
@@ -57,13 +60,14 @@ public class Compilador extends javax.swing.JFrame {
         });
 
         txtSaida.setColumns(20);
+        txtSaida.setEditable(false);
         txtSaida.setRows(5);
         jScrollPane1.setViewportView(txtSaida);
 
         txtSourceFile.setBackground(new java.awt.Color(211, 211, 211));
         txtSourceFile.setColumns(20);
         txtSourceFile.setEditable(false);
-        txtSourceFile.setFont(new java.awt.Font("Ubuntu Mono", 0, 15)); // NOI18N
+        txtSourceFile.setFont(new java.awt.Font("Ubuntu Mono", 0, 15));
         txtSourceFile.setRows(5);
         txtSourceFile.setDisabledTextColor(new java.awt.Color(1, 4, 78));
         jScrollPane2.setViewportView(txtSourceFile);
@@ -75,25 +79,16 @@ public class Compilador extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 716, Short.MAX_VALUE))
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 716, Short.MAX_VALUE))
-                        .addGroup(layout.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(lblPath, javax.swing.GroupLayout.PREFERRED_SIZE, 332, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 310, Short.MAX_VALUE)
-                            .addComponent(btnLoad))
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(btnCompile)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jLabel1)))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 717, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 717, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(lblPath, javax.swing.GroupLayout.PREFERRED_SIZE, 332, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 310, Short.MAX_VALUE)
+                        .addComponent(btnLoad))
+                    .addComponent(btnCompile)
+                    .addComponent(jLabel1))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -152,9 +147,24 @@ public class Compilador extends javax.swing.JFrame {
             analisadorSintatico.execute();
             txtSaida.setText("Compilado com sucesso!");
         }
+        catch(AnaliseLexicaException erro)
+        {
+            txtSaida.setText( erro.getMessage() );
+           // erro.printStackTrace();
+        }
+        catch(AnaliseSintaticaException erro)
+        {
+            txtSaida.setText(  erro.getMessage() );
+           // erro.printStackTrace();
+        }
+        catch(AnaliseSemanticaException erro)
+        {
+            txtSaida.setText(  erro.getMessage() );
+           // erro.printStackTrace();
+        }
         catch(Exception erro)
         {
-            txtSaida.setText( erro.getClass() + " " + erro.getMessage() );
+            txtSaida.setText( erro.getClass() + " " + erro.getMessage() + "\n" + erro.getStackTrace());
             erro.printStackTrace();
         }
     }//GEN-LAST:event_btnCompileActionPerformed

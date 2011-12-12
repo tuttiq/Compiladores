@@ -63,9 +63,11 @@ public class Lexico {
             Fecha arquivo fonte
             Fim. */
 
-        while(caracter==10 || caracter ==13)
-        {   n_line++;
+        while(caracter==10 || caracter==13)
+        {   
             caracter = (char) in.read();
+                n_line++;
+            
         }
         if( (int)caracter != -1 && caracter!='\uffff') { 
 
@@ -74,21 +76,22 @@ public class Lexico {
                 if(caracter=='{')
                 {
                     while ( (int)caracter!=-1 && caracter!='\uffff' && caracter!='}') 
-                    {   
+                    {   if(caracter==10 || caracter==13)
+                            n_line++;
                         caracter = (char) in.read();
                     }
                     caracter = (char) in.read();
                 }
                 while( (int)caracter!=-1 && caracter!='\uffff' && (caracter==8 || caracter==9 || caracter==32 || caracter==10 || caracter ==13))
-                {   if(caracter==10 || caracter ==13 || caracter=='\uffff')
-                        n_line++;
+                {   if(caracter== 10 || caracter ==13)
+                       n_line++;
+                    
                     caracter = (char) in.read();
                 }
             }
            if( (int)caracter != -1 && caracter!='\uffff') 
            {
                Token tk = pegaToken();
-               System.out.println(tk);
                return tk;
            }
         }    

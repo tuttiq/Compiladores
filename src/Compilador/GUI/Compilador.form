@@ -25,8 +25,8 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jScrollPane2" alignment="0" pref="716" max="32767" attributes="0"/>
-                  <Component id="jScrollPane1" alignment="0" pref="716" max="32767" attributes="0"/>
+                  <Component id="jScrollPane2" alignment="0" pref="717" max="32767" attributes="0"/>
+                  <Component id="jScrollPane1" alignment="0" pref="717" max="32767" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
                       <Component id="lblPath" min="-2" pref="332" max="-2" attributes="0"/>
                       <EmptySpace pref="310" max="32767" attributes="0"/>
@@ -92,6 +92,7 @@
         <Component class="javax.swing.JTextArea" name="txtSaida">
           <Properties>
             <Property name="columns" type="int" value="20"/>
+            <Property name="editable" type="boolean" value="false"/>
             <Property name="rows" type="int" value="5"/>
           </Properties>
         </Component>

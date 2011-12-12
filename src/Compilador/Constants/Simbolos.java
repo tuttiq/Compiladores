@@ -42,6 +42,8 @@ public class Simbolos {
     public static final int AbreParenteses = 36;
     public static final int FechaParenteses = 37;
     public static final int Ponto = 38;
+    public static final int Positivo = 39;
+    public static final int Negativo = 40;
     
     public static boolean isOperando(int termo) {
       if( termo == Identificador
@@ -65,7 +67,9 @@ public class Simbolos {
                        termo == Mais ||
                        termo == Menos ||
                        termo == Multiplicacao ||
-                       termo == Divisao)
+                       termo == Divisao ||
+                       termo == Positivo ||
+                       termo == Negativo)
            return true;
        return false;
     }

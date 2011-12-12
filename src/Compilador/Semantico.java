@@ -34,6 +34,9 @@ public class Semantico {
         prioridades.put(Simbolos.Menos,4);
         prioridades.put(Simbolos.Multiplicacao,5);
         prioridades.put(Simbolos.Divisao,5);
+        prioridades.put(Simbolos.Nao, 6);
+        prioridades.put(Simbolos.Positivo,6);
+        prioridades.put(Simbolos.Negativo,6);
         prioridades.put(Simbolos.AbreParenteses,0);
         
     }
@@ -48,9 +51,7 @@ public class Semantico {
     
     public void alteraSimbolo(int tipo) {
         
-        tabela.alteraTipo(tipo);
-        
-           
+        tabela.alteraTipo(tipo);      
     }
     
     public void limpaEscopo() {
@@ -95,8 +96,6 @@ public class Semantico {
         
         for(Token termo : expressao)
         {
-            
-            
             if(Simbolos.isOperador(termo.getSimbolo()))
             {
                 if(termo.getSimbolo()==Simbolos.E ||
@@ -107,8 +106,9 @@ public class Semantico {
                     {
                         if(t!=Tipos.Booleano)
                             erro(line, "operador '" + termo.getLexema() + "' deve ser aplicado a Booleano.");
-                        tipos.remove(t);
+                        //tipos.remove(t);
                     }
+                    tipos = new ArrayList<Integer>();
                     tipos.add(Tipos.Booleano);  //GERA BOOLEANO
                 }
                 
@@ -123,8 +123,9 @@ public class Semantico {
                     {
                         if(t!=Tipos.Inteiro)
                             erro(line, "operador '" + termo.getLexema() + "' deve ser aplicado a Inteiro.");
-                        tipos.remove(t);
+                        //tipos.remove(t);
                     }
+                    tipos = new ArrayList<Integer>();
                     tipos.add(Tipos.Booleano);  //GERA BOOLEANO
                 }
                 
@@ -163,10 +164,10 @@ public class Semantico {
         
         if(id.getTipo()==Tipos.FuncaoInteiro || id.getTipo()==Tipos.Inteiro)
             if(Tipos.Inteiro!=tipos.get(0))
-                erro(line, "expressao de tipo incompativel com '" + id.getLexema() + "'.");
+                erro(line, "expressao de tipo incompativel com " + id.getLexema() + ".");
         if(id.getTipo()==Tipos.FuncaoBooleano || id.getTipo()==Tipos.Booleano)
             if(Tipos.Booleano!=tipos.get(0))
-                erro(line, "expressao de tipo incompativel com '" + id.getLexema() + "'.");
+                erro(line, "expressao de tipo incompativel com " + id.getLexema() + ".");
     }
 	
     public ArrayList<Token> posOrdem(ArrayList<Token> expressao)
@@ -214,50 +215,24 @@ public class Semantico {
                    novaExpressao.add(expressao.get(i));
                
                else if (Simbolos.isOperador(termo))
-               {
-                  
-                  if(i-1 == -1)
-                  {
-                      if(termo!=Simbolos.Nao)
-                          novaExpressao.add(new Token("0", Simbolos.Numero));
-                      
-                      novaExpressao.add(expressao.get(i+1));
-                      novaExpressao.add(expressao.get(i));
-                      i++;
-                  }else
-                  { 
-                      int termoAnterior = expressao.get(i-1).getSimbolo();
-                      
-                      if(termoAnterior == Simbolos.AbreParenteses || Simbolos.isOperador(termoAnterior))
+               {                  
+                     while(!pilha.empty() &&
+                              prioridades.get(termo)<prioridades.get(pilha.lastElement().getSimbolo()) )
                       {
-                          if(termo!=Simbolos.Nao)
-                              novaExpressao.add(new Token("0", Simbolos.Numero));
-
-                          novaExpressao.add(expressao.get(i+1));
-                          novaExpressao.add(expressao.get(i));
-                          i++;
+                          novaExpressao.add(pilha.pop());
                       }
-                      else
-                      {    while(!pilha.empty() &&
-                                  prioridades.get(termo)<prioridades.get(pilha.lastElement().getSimbolo()) )
-                          {
-                              novaExpressao.add(pilha.pop());
-                          }
-                          pilha.push(expressao.get(i));
-                      }
-                  }
-                  
+                      pilha.push(expressao.get(i));
               }
               else if(termo==Simbolos.AbreParenteses)
                   pilha.push(expressao.get(i));
               
               else if(termo==Simbolos.FechaParenteses)
               {
-                  while(pilha.lastElement().getSimbolo()!=Simbolos.AbreParenteses)
+                  while(pilha.peek().getSimbolo()!=Simbolos.AbreParenteses)
                   {
                       novaExpressao.add(pilha.pop());
                   }
-                  pilha.pop();
+                      pilha.pop();
               }
               
            }
