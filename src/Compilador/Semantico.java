@@ -98,18 +98,20 @@ public class Semantico {
         {
             if(Simbolos.isOperador(termo.getSimbolo()))
             {
-                if(termo.getSimbolo()==Simbolos.E ||
-                        termo.getSimbolo()==Simbolos.Ou ||
-                        termo.getSimbolo()==Simbolos.Nao )  //RECEBE BOOLEANO
+                if(termo.getSimbolo()==Simbolos.Nao ||
+                        termo.getSimbolo()==Simbolos.Positivo ||
+                        termo.getSimbolo()==Simbolos.Negativo)
                 {
-                    for(int t : tipos)
-                    {
-                        if(t!=Tipos.Booleano)
-                            erro(line, "operador '" + termo.getLexema() + "' deve ser aplicado a Booleano.");
-                        //tipos.remove(t);
-                    }
-                    tipos = new ArrayList<Integer>();
-                    tipos.add(Tipos.Booleano);  //GERA BOOLEANO
+                    continue;
+                }
+                if(termo.getSimbolo()==Simbolos.E ||
+                        termo.getSimbolo()==Simbolos.Ou )  //RECEBE BOOLEANOS
+                {
+                    if(tipos.get(tipos.size()-1)!=Tipos.Booleano &&
+                            tipos.get(tipos.size()-2)!=Tipos.Booleano) //2 BOOLEANOS
+                                erro(line, "operador '" + termo.getLexema() + "' deve ser aplicado a Booleano.");
+                   
+                    tipos.remove(tipos.size()-1);  //GERA BOOLEANO
                 }
                 
                 if(termo.getSimbolo()==Simbolos.Maior ||
@@ -117,31 +119,27 @@ public class Semantico {
                         termo.getSimbolo()==Simbolos.Menor ||
                         termo.getSimbolo()==Simbolos.MenorIgual ||
                         termo.getSimbolo()==Simbolos.Igual ||
-                        termo.getSimbolo()==Simbolos.Diferente )  //RECEBE INTEIROS
+                        termo.getSimbolo()==Simbolos.Diferente )  //RECEBE 2 INTEIROS
                 {
-                    for(int t : tipos)
-                    {
-                        if(t!=Tipos.Inteiro)
-                            erro(line, "operador '" + termo.getLexema() + "' deve ser aplicado a Inteiro.");
-                        //tipos.remove(t);
-                    }
-                    tipos = new ArrayList<Integer>();
+                    if(tipos.get(tipos.size()-1)!=Tipos.Inteiro && tipos.get(tipos.size()-2)!=Tipos.Inteiro)
+                           erro(line, "operador '" + termo.getLexema() + "' deve ser aplicado a Inteiro.");
+                    
+                    tipos.remove(tipos.size()-1);
+                    tipos.remove(tipos.size()-1);
                     tipos.add(Tipos.Booleano);  //GERA BOOLEANO
                 }
                 
                 if(termo.getSimbolo()==Simbolos.Mais ||
                         termo.getSimbolo()==Simbolos.Menos ||
                         termo.getSimbolo()==Simbolos.Multiplicacao ||
-                        termo.getSimbolo()==Simbolos.Divisao )  //RECEBE INTEIROS
+                        termo.getSimbolo()==Simbolos.Divisao)  //RECEBE INTEIROS
                 {
-                    for(int t : tipos)
-                    {
-                        if(t!=Tipos.Inteiro)
-                            erro(line, "operador '" + termo.getLexema() + "' deve ser aplicado a Inteiro.");
-                        
-                    }
-                    tipos = new ArrayList<Integer>();
-                    tipos.add(Tipos.Inteiro);  //GERA INTEIROS
+                    if(tipos.get(tipos.size()-1)!=Tipos.Inteiro &&
+                            tipos.get(tipos.size()-2)!=Tipos.Inteiro) //2 INTEIROS
+                                erro(line, "operador '" + termo.getLexema() + "' deve ser aplicado a Inteiro.");
+                             
+                    
+                    tipos.remove(tipos.size()-1); //GERA INTEIROS
                 }
                 
             }

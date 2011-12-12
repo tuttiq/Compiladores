@@ -505,7 +505,8 @@ public class Sintatico {
         {
             if(expressao.get(i).getSimbolo()==Simbolos.Mais || expressao.get(i).getSimbolo()==Simbolos.Menos)
             {
-                if(i-1==-1 || expressao.get(i-1).getSimbolo()==Simbolos.AbreParenteses)
+                if(i-1==-1 || expressao.get(i-1).getSimbolo()==Simbolos.AbreParenteses
+                        || Simbolos.isOperador(expressao.get(i-1).getSimbolo()))
                 {
                    if(expressao.get(i).getSimbolo()==Simbolos.Mais)
                        expressao.get(i).setSimbolo(Simbolos.Positivo);
