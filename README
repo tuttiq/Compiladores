@@ -1,3 +1,4 @@
-Trabalho de Compiladores - Eng. de Computação PUCC
-VMachine v1
-Compilador v4
+Trabalho de Compiladores - Eng. de Computação PUC-Campinas 8º semestre [2011]
+Desenvolver um Compilador para a linguagem especificada
+O arquivo de ASSEMBLY específico gerado deve rodar na Máquina VIrtual desenvolvida:
+http://github.com/tuanequintella/MaquinaVirtual
